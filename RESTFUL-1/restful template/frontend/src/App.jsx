@@ -7,6 +7,9 @@ import Dashboard from "./pages/Dashboard";
 import FireExtinguishers from "./pages/FireExtinguishers";
 import ExtinguisherDetails from "./pages/ExtinguisherDetails";
 import Inspections from "./pages/Inspections";
+import InspectionRequests from "./pages/InspectionRequests";
+import MyExtinguishers from "./pages/MyExtinguishers";
+import AssignExtinguisher from "./pages/AssignExtinguisher";
 import Maintenance from "./pages/Maintenance";
 import Notifications from "./pages/Notifications";
 import Reports from "./pages/Reports";
@@ -20,7 +23,10 @@ const routes = [
   { path: "/dashboard", element: <Dashboard />, roles: ["ADMIN", "INSPECTOR", "USER"] },
   { path: "/extinguishers", element: <FireExtinguishers />, roles: ["ADMIN", "INSPECTOR", "USER"] },
   { path: "/extinguishers/:id", element: <ExtinguisherDetails />, roles: ["ADMIN", "INSPECTOR", "USER"] },
+  { path: "/my-extinguishers", element: <MyExtinguishers />, roles: ["USER"] },
+  { path: "/assign-extinguisher", element: <AssignExtinguisher />, roles: ["ADMIN"] },
   { path: "/inspections", element: <Inspections />, roles: ["ADMIN", "INSPECTOR", "USER"] },
+  { path: "/inspection-requests", element: <InspectionRequests />, roles: ["ADMIN", "INSPECTOR"] },
   { path: "/maintenance", element: <Maintenance />, roles: ["ADMIN", "INSPECTOR"] },
   { path: "/notifications", element: <Notifications />, roles: ["ADMIN", "INSPECTOR", "USER"] },
   { path: "/reports", element: <Reports />, roles: ["ADMIN", "INSPECTOR"] },

@@ -14,6 +14,7 @@ export const protect = (req, res, next) => {
 
   try {
     req.user = jwt.verify(token, env.jwtSecret);
+    req.accessToken = token;
     return next();
   } catch (error) {
     error.statusCode = 401;

@@ -46,6 +46,7 @@ model FireExtinguisher {
   createdAt        DateTime                  @default(now()) @map("created_at")
   updatedAt        DateTime                  @updatedAt @map("updated_at")
   statusHistory    ExtinguisherStatusHistory[]
+  assignment       ExtinguisherAssignment?
 
   @@index([serialNumber])
   @@index([status])
@@ -53,6 +54,19 @@ model FireExtinguisher {
   @@index([expiryDate])
   @@index([building, floor, zone])
   @@map("fire_extinguishers")
+}
+
+model ExtinguisherAssignment {
+  id                String           @id @default(uuid())
+  extinguisherId    String           @unique @map("extinguisher_id")
+  assignedUserId    String           @map("assigned_user_id")
+  assignedByAdminId String           @map("assigned_by_admin_id")
+  assignedAt        DateTime         @default(now()) @map("assigned_at")
+  notes             String?
+  extinguisher      FireExtinguisher @relation(fields: [extinguisherId], references: [id], onDelete: Cascade)
+
+  @@index([assignedUserId])
+  @@map("extinguisher_assignments")
 }
 
 model ExtinguisherStatusHistory {

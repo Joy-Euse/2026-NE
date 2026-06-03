@@ -15,12 +15,14 @@ function ForgotPassword() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [devLink, setDevLink] = useState("");
+  const [etherealLink, setEtherealLink] = useState("");
 
   const submit = async (event) => {
     event.preventDefault();
     setError("");
     setMessage("");
     setDevLink("");
+    setEtherealLink("");
     if (!isEmail(email)) {
       setError("Enter a valid email address.");
       return;
@@ -31,6 +33,7 @@ function ForgotPassword() {
       const response = await forgotPassword(email);
       setMessage(response.message || "Password reset email sent.");
       setDevLink(response.data?.resetLink || "");
+      setEtherealLink(response.data?.emailPreviewUrl || "");
     } catch (err) {
       setError(apiError(err));
     } finally {
@@ -47,6 +50,7 @@ function ForgotPassword() {
           <Alert type="error">{error}</Alert>
           <Alert type="success">{message}</Alert>
           <Alert type="info">{devLink && <Link className="font-medium text-primary" to={new URL(devLink).pathname + new URL(devLink).search}>Open development reset link</Link>}</Alert>
+          <Alert type="info">{etherealLink && <a className="font-medium text-primary" href={etherealLink} target="_blank" rel="noopener noreferrer">View email in Ethereal inbox ↗</a>}</Alert>
         </div>
         <div className="mt-4">
           <FormField label="Email"><input type="email" className="w-full rounded-md border border-slate-300 px-3 py-2" value={email} onChange={(e) => setEmail(e.target.value)} /></FormField>

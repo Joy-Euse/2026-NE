@@ -7,6 +7,10 @@ export const scheduleInspectionSchema = Joi.object({
   inspectionTime: Joi.string().trim().pattern(/^([01]\d|2[0-3]):[0-5]\d$/).required(),
 });
 
+export const assignInspectorSchema = Joi.object({
+  assignedInspectorId: Joi.string().uuid().required(),
+});
+
 export const updateInspectionSchema = Joi.object({
   extinguisherId: Joi.string().uuid(),
   assignedInspectorId: Joi.string().uuid().allow(null),

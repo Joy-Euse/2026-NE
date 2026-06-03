@@ -8,4 +8,6 @@ export const env = {
   serviceName: process.env.SERVICE_NAME || "extinguisher-service",
   jwtSecret: process.env.JWT_SECRET || "development_secret_change_me",
   auditLogServiceUrl: process.env.AUDIT_LOG_SERVICE_URL || "http://localhost:4007/api/audit-logs",
+  notificationServiceUrl: process.env.NOTIFICATION_SERVICE_URL || "http://localhost:4005/api/notifications",
+  internalServiceToken: process.env.INTERNAL_SERVICE_TOKEN || "development_internal_token",
 };

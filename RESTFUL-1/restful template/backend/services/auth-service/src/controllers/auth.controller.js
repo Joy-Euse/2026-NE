@@ -277,6 +277,7 @@ export const forgotPassword = async (req, res, next) => {
 
     let resetToken;
     let resetLink;
+    let emailResult;
     if (credential) {
       resetToken = createOpaqueToken();
       resetLink = buildPasswordResetLink(resetToken);
@@ -297,13 +298,24 @@ export const forgotPassword = async (req, res, next) => {
         outcome: "SUCCESS",
       });
 
-      await sendPasswordResetEmail({ email: credential.email, resetLink });
+      emailResult = await sendPasswordResetEmail({ email: credential.email, resetLink });
     }
+
+    // In development expose the reset link and any Ethereal preview URL so
+    // the developer can test without a real inbox.
+    const devData =
+      env.nodeEnv !== "production" && resetLink
+        ? {
+            resetToken,
+            resetLink,
+            ...(emailResult?.previewUrl ? { emailPreviewUrl: emailResult.previewUrl } : {}),
+          }
+        : undefined;
 
     res.json({
       success: true,
       message: "If the email exists, a password reset link has been sent",
-      data: env.nodeEnv === "production" ? undefined : { resetToken, resetLink },
+      data: devData,
     });
   } catch (error) {
     next(error);

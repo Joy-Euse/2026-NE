@@ -8,6 +8,8 @@ datasource db {
 }
 
 enum InspectionStatus {
+  REQUESTED
+  ASSIGNED
   SCHEDULED
   COMPLETED
   CANCELLED
@@ -26,9 +28,10 @@ model Inspection {
   extinguisherId       String             @map("extinguisher_id")
   scheduledByUserId    String             @map("scheduled_by_user_id")
   assignedInspectorId  String?            @map("assigned_inspector_id")
+  assignedByAdminId    String?            @map("assigned_by_admin_id")
   inspectionDate       DateTime           @map("inspection_date") @db.Date
   inspectionTime       String             @map("inspection_time")
-  status               InspectionStatus   @default(SCHEDULED)
+  status               InspectionStatus   @default(REQUESTED)
   result               InspectionResult?
   resultNotes          String?            @map("result_notes")
   cancelReason         String?            @map("cancel_reason")
