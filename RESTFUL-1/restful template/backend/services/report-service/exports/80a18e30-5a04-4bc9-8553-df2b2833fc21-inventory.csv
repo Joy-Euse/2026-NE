@@ -1,0 +1,3 @@
+id,serialNumber,location,building,floor,zone,type,size,installationDate,expiryDate,status,createdByUserId,updatedByUserId,createdAt,updatedAt
+"3610934c-5141-4894-a6ac-208075b86231","2345678901","Kigali","Convention Center","1","Kigali City","CO2","1.5 lb","2026-06-04","2026-06-05","ACTIVE","a7478747-1969-4feb-a089-ee7519f860e3","a7478747-1969-4feb-a089-ee7519f860e3","2026-06-03T10:07:13.236Z","2026-06-03T10:07:13.236Z"
+"b6d922db-63e2-4835-b65d-0fe0b307e5d0","FE-20260603120402","Main Lobby","Head Office","Ground","A","CO2","5 lb","2026-01-01","2028-01-01","ACTIVE","a7478747-1969-4feb-a089-ee7519f860e3","a7478747-1969-4feb-a089-ee7519f860e3","2026-06-03T10:04:02.533Z","2026-06-03T10:04:02.533Z"

@@ -5,9 +5,17 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:4000/api",
 });
 
+const cleanParams = (params) => {
+  if (!params) return params;
+  return Object.fromEntries(
+    Object.entries(params).filter(([, value]) => value !== "" && value !== null && value !== undefined),
+  );
+};
+
 api.interceptors.request.use((config) => {
   const { accessToken } = loadAuth();
   if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
+  config.params = cleanParams(config.params);
   return config;
 });
 

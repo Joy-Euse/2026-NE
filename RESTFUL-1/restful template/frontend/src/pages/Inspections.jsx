@@ -10,9 +10,16 @@ import Table from "../components/Table";
 import Toolbar from "../components/Toolbar";
 import RoleGate from "../components/RoleGate";
 import { cancelInspection, completeInspection, getInspections, scheduleInspection } from "../services/inspectionApi";
+import { getExtinguishers } from "../services/extinguisherApi";
+import { getUsers } from "../services/userApi";
+import { apiError } from "../services/api";
+import { useSelector } from "react-redux";
 
 function Inspections() {
+  const { user } = useSelector((state) => state.auth);
   const [rows, setRows] = useState([]);
+  const [extinguishers, setExtinguishers] = useState([]);
+  const [inspectors, setInspectors] = useState([]);
   const [filters, setFilters] = useState({ status: "" });
   const [form, setForm] = useState({ extinguisherId: "", assignedInspectorId: "", inspectionDate: "", inspectionTime: "" });
   const [loading, setLoading] = useState(true);
@@ -22,14 +29,30 @@ function Inspections() {
     setLoading(true);
     getInspections({ ...filters, limit: 50 }).then((res) => setRows(res.data || [])).catch((err) => setError(err.message)).finally(() => setLoading(false));
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    getExtinguishers({ status: "ACTIVE", limit: 100 })
+      .then((res) => setExtinguishers(res.data || []))
+      .catch(() => setExtinguishers([]));
+
+    if (user?.role === "ADMIN") {
+      getUsers({ limit: 100 })
+        .then((res) => setInspectors((res.data || []).filter((item) => item.role === "INSPECTOR" && item.status === "ACTIVE")))
+        .catch(() => setInspectors([]));
+    }
+  }, [user?.role]);
 
   const submit = async (event) => {
     event.preventDefault();
+    setError("");
     if (!form.extinguisherId || !form.inspectionDate || !form.inspectionTime) return setError("Extinguisher, date, and time are required.");
-    await scheduleInspection({ ...form, assignedInspectorId: form.assignedInspectorId || undefined });
-    setForm({ extinguisherId: "", assignedInspectorId: "", inspectionDate: "", inspectionTime: "" });
-    load();
+    try {
+      await scheduleInspection({ ...form, assignedInspectorId: form.assignedInspectorId || undefined });
+      setForm({ extinguisherId: "", assignedInspectorId: "", inspectionDate: "", inspectionTime: "" });
+      load();
+    } catch (err) {
+      setError(apiError(err));
+    }
   };
 
   const columns = [
@@ -47,8 +70,26 @@ function Inspections() {
       <Alert type="error">{error}</Alert>
       <Card title="Schedule inspection">
         <form onSubmit={submit} className="grid gap-3 md:grid-cols-5">
-          <FormField label="Extinguisher ID"><input className="w-full rounded-md border px-3 py-2" value={form.extinguisherId} onChange={(e) => setForm({ ...form, extinguisherId: e.target.value })} /></FormField>
-          <FormField label="Inspector ID"><input className="w-full rounded-md border px-3 py-2" value={form.assignedInspectorId} onChange={(e) => setForm({ ...form, assignedInspectorId: e.target.value })} /></FormField>
+          <FormField label="Extinguisher">
+            <select className="w-full rounded-md border px-3 py-2" value={form.extinguisherId} onChange={(e) => setForm({ ...form, extinguisherId: e.target.value })}>
+              <option value="">Select extinguisher</option>
+              {extinguishers.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.serialNumber} - {item.location}
+                </option>
+              ))}
+            </select>
+          </FormField>
+          <FormField label="Inspector">
+            <select className="w-full rounded-md border px-3 py-2" value={form.assignedInspectorId} onChange={(e) => setForm({ ...form, assignedInspectorId: e.target.value })}>
+              <option value="">Assign later</option>
+              {inspectors.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.firstName} {item.lastName}
+                </option>
+              ))}
+            </select>
+          </FormField>
           <FormField label="Date"><input type="date" className="w-full rounded-md border px-3 py-2" value={form.inspectionDate} onChange={(e) => setForm({ ...form, inspectionDate: e.target.value })} /></FormField>
           <FormField label="Time"><input type="time" className="w-full rounded-md border px-3 py-2" value={form.inspectionTime} onChange={(e) => setForm({ ...form, inspectionTime: e.target.value })} /></FormField>
           <div className="flex items-end"><Button className="bg-primary text-white hover:bg-primary/90">Schedule</Button></div>

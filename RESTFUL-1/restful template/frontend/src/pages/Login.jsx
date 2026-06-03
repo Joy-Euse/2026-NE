@@ -42,6 +42,9 @@ function Login() {
             <input className="w-full rounded-md border border-slate-300 px-3 py-2" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
           </FormField>
         </div>
+        <div className="mt-2 text-right">
+          <Link className="text-sm font-medium text-primary" to="/forgot-password">Forgot password?</Link>
+        </div>
         <Button disabled={loading} className="mt-5 w-full bg-primary text-white hover:bg-primary/90">
           <FiLogIn /> {loading ? "Signing in..." : "Sign in"}
         </Button>

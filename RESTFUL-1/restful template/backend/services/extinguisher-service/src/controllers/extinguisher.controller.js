@@ -137,22 +137,23 @@ export const createExtinguisher = async (req, res, next) => {
 
 export const listExtinguishers = async (req, res, next) => {
   try {
-    const page = Math.max(Number(req.query.page || 1), 1);
-    const limit = Math.min(Math.max(Number(req.query.limit || 20), 1), 100);
+    const query = req.validatedQuery || req.query;
+    const page = Math.max(Number(query.page || 1), 1);
+    const limit = Math.min(Math.max(Number(query.limit || 20), 1), 100);
     const where = {};
 
-    if (req.query.status) where.status = req.query.status;
-    if (req.query.type) where.type = req.query.type;
-    if (req.query.building) where.building = { equals: req.query.building, mode: "insensitive" };
-    if (req.query.floor) where.floor = { equals: req.query.floor, mode: "insensitive" };
-    if (req.query.zone) where.zone = { equals: req.query.zone, mode: "insensitive" };
-    if (req.query.expiryBefore) where.expiryDate = { lte: new Date(req.query.expiryBefore) };
-    if (req.query.search) {
+    if (query.status) where.status = query.status;
+    if (query.type) where.type = query.type;
+    if (query.building) where.building = { equals: query.building, mode: "insensitive" };
+    if (query.floor) where.floor = { equals: query.floor, mode: "insensitive" };
+    if (query.zone) where.zone = { equals: query.zone, mode: "insensitive" };
+    if (query.expiryBefore) where.expiryDate = { lte: new Date(query.expiryBefore) };
+    if (query.search) {
       where.OR = [
-        { serialNumber: { contains: req.query.search, mode: "insensitive" } },
-        { location: { contains: req.query.search, mode: "insensitive" } },
-        { building: { contains: req.query.search, mode: "insensitive" } },
-        { zone: { contains: req.query.search, mode: "insensitive" } },
+        { serialNumber: { contains: query.search, mode: "insensitive" } },
+        { location: { contains: query.search, mode: "insensitive" } },
+        { building: { contains: query.search, mode: "insensitive" } },
+        { zone: { contains: query.search, mode: "insensitive" } },
       ];
     }
 

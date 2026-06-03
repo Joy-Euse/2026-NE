@@ -11,6 +11,9 @@ import Maintenance from "./pages/Maintenance";
 import Notifications from "./pages/Notifications";
 import Reports from "./pages/Reports";
 import Users from "./pages/Users";
+import Profile from "./pages/Profile";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const routes = [
@@ -22,6 +25,7 @@ const routes = [
   { path: "/notifications", element: <Notifications />, roles: ["ADMIN", "INSPECTOR", "USER"] },
   { path: "/reports", element: <Reports />, roles: ["ADMIN", "INSPECTOR"] },
   { path: "/users", element: <Users />, roles: ["ADMIN"] },
+  { path: "/profile", element: <Profile />, roles: ["ADMIN", "INSPECTOR", "USER"] },
 ];
 
 function App() {
@@ -35,6 +39,8 @@ function App() {
         <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />} />
         <Route path="/register" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Register />} />
         <Route path="/signup" element={<Navigate to="/register" replace />} />
+        <Route path="/forgot-password" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <ForgotPassword />} />
+        <Route path="/reset-password" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <ResetPassword />} />
         {routes.map((route) => (
           <Route
             key={route.path}

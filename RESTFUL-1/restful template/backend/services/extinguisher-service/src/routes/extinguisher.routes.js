@@ -9,9 +9,10 @@ import {
 } from "../controllers/extinguisher.controller.js";
 import { protect } from "../middleware/auth.middleware.js";
 import { authorize } from "../middleware/role.middleware.js";
-import { validate } from "../middleware/validate.middleware.js";
+import { validate, validateQuery } from "../middleware/validate.middleware.js";
 import {
   createExtinguisherSchema,
+  listExtinguishersSchema,
   updateExtinguisherSchema,
   updateStatusSchema,
 } from "../validations/extinguisher.validation.js";
@@ -19,7 +20,7 @@ import {
 const router = express.Router();
 
 router.post("/", protect, authorize("ADMIN"), validate(createExtinguisherSchema), createExtinguisher);
-router.get("/", protect, authorize("ADMIN", "INSPECTOR", "USER"), listExtinguishers);
+router.get("/", protect, authorize("ADMIN", "INSPECTOR", "USER"), validateQuery(listExtinguishersSchema), listExtinguishers);
 router.get("/:id", protect, authorize("ADMIN", "INSPECTOR", "USER"), getExtinguisherById);
 router.put("/:id", protect, authorize("ADMIN", "INSPECTOR"), validate(updateExtinguisherSchema), updateExtinguisher);
 router.patch("/:id/status", protect, authorize("ADMIN", "INSPECTOR"), validate(updateStatusSchema), updateExtinguisherStatus);

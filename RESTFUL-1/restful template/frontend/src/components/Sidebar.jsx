@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
-import { FiBell, FiClipboard, FiFileText, FiGrid, FiLogOut, FiTool, FiUsers } from "react-icons/fi";
+import { FiBell, FiClipboard, FiFileText, FiGrid, FiLogOut, FiTool, FiUser, FiUsers } from "react-icons/fi";
 import { MdOutlineFireExtinguisher } from "react-icons/md";
 import { logout } from "../redux/authSlice";
 import ConfirmDialog from "./ConfirmDialog";
@@ -14,6 +14,7 @@ const links = [
   { to: "/notifications", label: "Notifications", icon: FiBell, roles: ["ADMIN", "INSPECTOR", "USER"] },
   { to: "/reports", label: "Reports", icon: FiFileText, roles: ["ADMIN", "INSPECTOR"] },
   { to: "/users", label: "Users", icon: FiUsers, roles: ["ADMIN"] },
+  { to: "/profile", label: "My Profile", icon: FiUser, roles: ["ADMIN", "INSPECTOR", "USER"] },
 ];
 
 function Sidebar() {

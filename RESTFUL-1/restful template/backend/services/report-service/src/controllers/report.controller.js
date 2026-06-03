@@ -9,6 +9,7 @@ import {
   buildReportByType,
 } from "../services/report-builder.service.js";
 import { writeCsvExport, writePdfExport } from "../services/export.service.js";
+import { access } from "fs/promises";
 
 const filtersFromQuery = (query) => ({
   fromDate: query.fromDate,
@@ -44,7 +45,7 @@ export const getDashboard = async (req, res, next) => {
 
 export const getInventory = async (req, res, next) => {
   try {
-    const filters = filtersFromQuery(req.query);
+    const filters = filtersFromQuery(req.validatedQuery || req.query);
     const report = await buildInventoryReport({ req, filters });
     await auditView(req, "INVENTORY", { filters });
     res.json({ success: true, data: report });
@@ -55,7 +56,7 @@ export const getInventory = async (req, res, next) => {
 
 export const getInspections = async (req, res, next) => {
   try {
-    const filters = filtersFromQuery(req.query);
+    const filters = filtersFromQuery(req.validatedQuery || req.query);
     const report = await buildInspectionReport({ req, filters });
     await auditView(req, "INSPECTIONS", { filters });
     res.json({ success: true, data: report });
@@ -66,7 +67,7 @@ export const getInspections = async (req, res, next) => {
 
 export const getCompliance = async (req, res, next) => {
   try {
-    const filters = filtersFromQuery(req.query);
+    const filters = filtersFromQuery(req.validatedQuery || req.query);
     const report = await buildComplianceReport({ req, filters });
     await auditView(req, "COMPLIANCE", { filters });
     res.json({ success: true, data: report });
@@ -77,7 +78,7 @@ export const getCompliance = async (req, res, next) => {
 
 export const getMaintenance = async (req, res, next) => {
   try {
-    const filters = filtersFromQuery(req.query);
+    const filters = filtersFromQuery(req.validatedQuery || req.query);
     const report = await buildMaintenanceReport({ req, filters });
     await auditView(req, "MAINTENANCE", { filters });
     res.json({ success: true, data: report });
@@ -148,6 +149,41 @@ export const getExportById = async (req, res, next) => {
     }
 
     res.json({ success: true, data: exportRecord });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const downloadExport = async (req, res, next) => {
+  try {
+    const exportRecord = await prisma.reportExport.findUnique({ where: { id: req.params.id } });
+
+    if (!exportRecord) {
+      const error = new Error("Report export not found");
+      error.statusCode = 404;
+      error.code = "REPORT_EXPORT_NOT_FOUND";
+      throw error;
+    }
+
+    if (exportRecord.status !== "COMPLETED" || !exportRecord.filePath || !exportRecord.fileName) {
+      const error = new Error("Report export file is not ready");
+      error.statusCode = 409;
+      error.code = "REPORT_EXPORT_NOT_READY";
+      throw error;
+    }
+
+    await access(exportRecord.filePath);
+
+    await writeAuditLog({
+      req,
+      action: "REPORT_EXPORT_DOWNLOADED",
+      resourceType: "REPORT_EXPORT",
+      resourceId: exportRecord.id,
+      outcome: "SUCCESS",
+      metadata: { reportType: exportRecord.reportType, format: exportRecord.format },
+    });
+
+    res.download(exportRecord.filePath, exportRecord.fileName);
   } catch (error) {
     next(error);
   }

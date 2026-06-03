@@ -5,6 +5,7 @@ import { addDays, addMinutes, createOpaqueToken } from "../utils/tokens.js";
 import { signAccessToken, verifyAccessToken } from "../utils/jwt.js";
 import { createUserProfile, getUserProfileByAuthId } from "../services/user-service.client.js";
 import { writeAuditLog } from "../services/audit.service.js";
+import { buildPasswordResetLink, sendPasswordResetEmail } from "../services/email.service.js";
 
 const publicProfile = (profile) => ({
   id: profile.id,
@@ -275,8 +276,10 @@ export const forgotPassword = async (req, res, next) => {
     const credential = await prisma.userCredential.findUnique({ where: { email: req.body.email } });
 
     let resetToken;
+    let resetLink;
     if (credential) {
       resetToken = createOpaqueToken();
+      resetLink = buildPasswordResetLink(resetToken);
       await prisma.passwordResetToken.create({
         data: {
           userId: credential.id,
@@ -293,12 +296,14 @@ export const forgotPassword = async (req, res, next) => {
         resourceId: credential.id,
         outcome: "SUCCESS",
       });
+
+      await sendPasswordResetEmail({ email: credential.email, resetLink });
     }
 
     res.json({
       success: true,
-      message: "If the email exists, a password reset token has been created",
-      data: env.nodeEnv === "production" ? undefined : { resetToken },
+      message: "If the email exists, a password reset link has been sent",
+      data: env.nodeEnv === "production" ? undefined : { resetToken, resetLink },
     });
   } catch (error) {
     next(error);

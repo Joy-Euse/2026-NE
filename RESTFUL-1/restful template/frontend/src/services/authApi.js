@@ -19,3 +19,18 @@ export const getProfile = async () => {
   const response = await api.get("/users/me");
   return response.data.data;
 };
+
+export const changePassword = async (data) => {
+  const response = await api.post("/auth/change-password", data);
+  return response.data;
+};
+
+export const forgotPassword = async (email) => {
+  const response = await api.post("/auth/forgot-password", { email });
+  return response.data;
+};
+
+export const resetPassword = async (data) => {
+  const response = await api.post("/auth/reset-password", data);
+  return response.data;
+};

@@ -49,3 +49,15 @@ export const updateStatusSchema = Joi.object({
   status: status.required(),
   reason: Joi.string().trim().max(500).allow(null, ""),
 });
+
+export const listExtinguishersSchema = Joi.object({
+  status,
+  type,
+  building: Joi.string().trim().max(120),
+  floor: Joi.string().trim().max(80),
+  zone: Joi.string().trim().max(80),
+  expiryBefore: Joi.date().iso(),
+  search: Joi.string().trim().max(120),
+  page: Joi.number().integer().min(1),
+  limit: Joi.number().integer().min(1).max(100),
+}).unknown(false);
