@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum InspectionStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  OVERDUE
+}
+
+enum InspectionResult {
+  PASS
+  FAIL
+  NEEDS_MAINTENANCE
+  NOT_APPLICABLE
+}
+
+model Inspection {
+  id                  String             @id @default(uuid())
+  extinguisherId       String             @map("extinguisher_id")
+  scheduledByUserId    String             @map("scheduled_by_user_id")
+  assignedInspectorId  String?            @map("assigned_inspector_id")
+  inspectionDate       DateTime           @map("inspection_date") @db.Date
+  inspectionTime       String             @map("inspection_time")
+  status               InspectionStatus   @default(SCHEDULED)
+  result               InspectionResult?
+  resultNotes          String?            @map("result_notes")
+  cancelReason         String?            @map("cancel_reason")
+  completedAt          DateTime?          @map("completed_at")
+  cancelledAt          DateTime?          @map("cancelled_at")
+  createdAt            DateTime           @default(now()) @map("created_at")
+  updatedAt            DateTime           @updatedAt @map("updated_at")
+  maintenanceLogs      MaintenanceLog[]
+
+  @@index([extinguisherId, inspectionDate])
+  @@index([assignedInspectorId, status])
+  @@index([status, inspectionDate])
+  @@map("inspections")
+}
+
+model MaintenanceLog {
+  id                String      @id @default(uuid())
+  extinguisherId     String      @map("extinguisher_id")
+  inspectionId       String?     @map("inspection_id")
+  inspectorId        String      @map("inspector_id")
+  actionTaken        String      @map("action_taken")
+  maintenanceDate    DateTime    @map("maintenance_date") @db.Date
+  issuesIdentified   String?     @map("issues_identified")
+  notes              String?
+  recommendations    String?
+  createdAt          DateTime    @default(now()) @map("created_at")
+  updatedAt          DateTime    @updatedAt @map("updated_at")
+  inspection         Inspection? @relation(fields: [inspectionId], references: [id], onDelete: SetNull)
+
+  @@index([extinguisherId, maintenanceDate])
+  @@index([inspectionId])
+  @@index([inspectorId, maintenanceDate])
+  @@map("maintenance_logs")
+}

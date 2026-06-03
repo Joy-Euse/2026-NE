@@ -1,0 +1,224 @@
+version: "3.9"
+
+services:
+  api-gateway:
+    build: ./services/api-gateway
+    ports:
+      - "4000:4000"
+    environment:
+      PORT: 4000
+      AUTH_SERVICE_URL: http://auth-service:4001
+      USER_SERVICE_URL: http://user-service:4002
+      EXTINGUISHER_SERVICE_URL: http://extinguisher-service:4003
+      INSPECTION_SERVICE_URL: http://inspection-service:4004
+      NOTIFICATION_SERVICE_URL: http://notification-service:4005
+      REPORT_SERVICE_URL: http://report-service:4006
+      AUDIT_LOG_SERVICE_URL: http://audit-log-service:4007
+    depends_on:
+      - auth-service
+      - user-service
+      - extinguisher-service
+      - inspection-service
+      - notification-service
+      - report-service
+      - audit-log-service
+
+  auth-service:
+    build: ./services/auth-service
+    ports:
+      - "4001:4001"
+    environment:
+      NODE_ENV: development
+      PORT: 4001
+      SERVICE_NAME: auth-service
+      DATABASE_URL: postgresql://postgres:password@auth-db:5432/auth_db
+      JWT_SECRET: replace_with_a_long_random_secret
+      JWT_ACCESS_EXPIRES_IN: 15m
+      REFRESH_TOKEN_DAYS: 7
+      PASSWORD_RESET_MINUTES: 15
+      USER_SERVICE_URL: http://user-service:4002/api/internal/users
+      AUDIT_LOG_SERVICE_URL: http://audit-log-service:4007/api/audit-logs
+      INTERNAL_SERVICE_TOKEN: replace_with_internal_service_token
+    depends_on:
+      - auth-db
+      - user-service
+
+  user-service:
+    build: ./services/user-service
+    ports:
+      - "4002:4002"
+    environment:
+      NODE_ENV: development
+      PORT: 4002
+      SERVICE_NAME: user-service
+      DATABASE_URL: postgresql://postgres:password@user-db:5432/user_db
+      JWT_SECRET: replace_with_a_long_random_secret
+      AUDIT_LOG_SERVICE_URL: http://audit-log-service:4007/api/audit-logs
+      INTERNAL_SERVICE_TOKEN: replace_with_internal_service_token
+    depends_on:
+      - user-db
+
+  extinguisher-service:
+    build: ./services/extinguisher-service
+    ports:
+      - "4003:4003"
+    environment:
+      NODE_ENV: development
+      PORT: 4003
+      SERVICE_NAME: extinguisher-service
+      DATABASE_URL: postgresql://postgres:password@extinguisher-db:5432/extinguisher_db
+      JWT_SECRET: replace_with_a_long_random_secret
+      AUDIT_LOG_SERVICE_URL: http://audit-log-service:4007/api/audit-logs
+    depends_on:
+      - extinguisher-db
+
+  inspection-service:
+    build: ./services/inspection-service
+    ports:
+      - "4004:4004"
+    environment:
+      NODE_ENV: development
+      PORT: 4004
+      SERVICE_NAME: inspection-service
+      DATABASE_URL: postgresql://postgres:password@inspection-db:5432/inspection_db
+      JWT_SECRET: replace_with_a_long_random_secret
+      EXTINGUISHER_SERVICE_URL: http://extinguisher-service:4003/api/extinguishers
+      USER_SERVICE_URL: http://user-service:4002/api/internal/users
+      NOTIFICATION_SERVICE_URL: http://notification-service:4005/api/notifications
+      AUDIT_LOG_SERVICE_URL: http://audit-log-service:4007/api/audit-logs
+      INTERNAL_SERVICE_TOKEN: replace_with_internal_service_token
+    depends_on:
+      - inspection-db
+      - extinguisher-service
+      - user-service
+      - notification-service
+
+  notification-service:
+    build: ./services/notification-service
+    ports:
+      - "4005:4005"
+    environment:
+      NODE_ENV: development
+      PORT: 4005
+      SERVICE_NAME: notification-service
+      DATABASE_URL: postgresql://postgres:password@notification-db:5432/notification_db
+      JWT_SECRET: replace_with_a_long_random_secret
+    depends_on:
+      - notification-db
+
+  report-service:
+    build: ./services/report-service
+    ports:
+      - "4006:4006"
+    environment:
+      PORT: 4006
+      SERVICE_NAME: report-service
+      DATABASE_URL: postgresql://postgres:password@report-db:5432/report_db
+      JWT_SECRET: replace_with_a_long_random_secret
+      EXTINGUISHER_SERVICE_URL: http://extinguisher-service:4003/api/extinguishers
+      INSPECTION_SERVICE_URL: http://inspection-service:4004/api/inspections
+      MAINTENANCE_SERVICE_URL: http://inspection-service:4004/api/maintenance
+      AUDIT_LOG_SERVICE_URL: http://audit-log-service:4007/api/audit-logs
+      EXPORT_DIR: exports
+    depends_on:
+      - report-db
+      - extinguisher-service
+      - inspection-service
+      - audit-log-service
+
+  audit-log-service:
+    build: ./services/audit-log-service
+    ports:
+      - "4007:4007"
+    environment:
+      PORT: 4007
+      DATABASE_URL: postgresql://postgres:password@audit-log-db:5432/audit_log_db
+      JWT_SECRET: replace_with_a_long_random_secret
+    depends_on:
+      - audit-log-db
+
+  auth-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5433:5432"
+    volumes:
+      - auth_data:/var/lib/postgresql/data
+
+  user-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: user_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5434:5432"
+    volumes:
+      - user_data:/var/lib/postgresql/data
+
+  extinguisher-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: extinguisher_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5435:5432"
+    volumes:
+      - extinguisher_data:/var/lib/postgresql/data
+
+  inspection-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: inspection_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5436:5432"
+    volumes:
+      - inspection_data:/var/lib/postgresql/data
+
+  notification-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: notification_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5437:5432"
+    volumes:
+      - notification_data:/var/lib/postgresql/data
+
+  report-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: report_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5438:5432"
+    volumes:
+      - report_data:/var/lib/postgresql/data
+
+  audit-log-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: audit_log_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5439:5432"
+    volumes:
+      - audit_log_data:/var/lib/postgresql/data
+
+volumes:
+  auth_data:
+  user_data:
+  extinguisher_data:
+  inspection_data:
+  notification_data:
+  report_data:
+  audit_log_data:

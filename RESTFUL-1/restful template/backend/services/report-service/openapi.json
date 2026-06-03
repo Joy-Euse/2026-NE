@@ -1,0 +1,111 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Reporting Service API",
+    "version": "1.0.0"
+  },
+  "servers": [{ "url": "/api" }],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "responses": { "200": { "description": "Service is healthy" } }
+      }
+    },
+    "/reports/dashboard": {
+      "get": {
+        "summary": "Dashboard report",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "Dashboard report" } }
+      }
+    },
+    "/reports/inventory": {
+      "get": {
+        "summary": "Inventory report",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "in": "query", "name": "status", "schema": { "type": "string" } },
+          { "in": "query", "name": "type", "schema": { "type": "string" } },
+          { "in": "query", "name": "building", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Inventory report" } }
+      }
+    },
+    "/reports/inspections": {
+      "get": {
+        "summary": "Inspection report",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "in": "query", "name": "status", "schema": { "type": "string" } },
+          { "in": "query", "name": "inspector", "schema": { "type": "string", "format": "uuid" } },
+          { "in": "query", "name": "fromDate", "schema": { "type": "string", "format": "date" } },
+          { "in": "query", "name": "toDate", "schema": { "type": "string", "format": "date" } }
+        ],
+        "responses": { "200": { "description": "Inspection report" } }
+      }
+    },
+    "/reports/compliance": {
+      "get": {
+        "summary": "Compliance report",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "Compliance report" } }
+      }
+    },
+    "/reports/maintenance": {
+      "get": {
+        "summary": "Maintenance report",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "Maintenance report" } }
+      }
+    },
+    "/reports/exports": {
+      "post": {
+        "summary": "Export report",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ExportRequest" }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Report export created" } }
+      }
+    },
+    "/reports/exports/{id}": {
+      "get": {
+        "summary": "Get report export metadata",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": { "200": { "description": "Report export metadata" } }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" }
+    },
+    "schemas": {
+      "ExportRequest": {
+        "type": "object",
+        "required": ["reportType", "format"],
+        "properties": {
+          "reportType": {
+            "type": "string",
+            "enum": ["DASHBOARD", "INVENTORY", "INSPECTIONS", "COMPLIANCE", "MAINTENANCE"]
+          },
+          "format": {
+            "type": "string",
+            "enum": ["PDF", "CSV"]
+          },
+          "filters": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  }
+}

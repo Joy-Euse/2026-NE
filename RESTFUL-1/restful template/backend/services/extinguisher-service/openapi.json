@@ -1,0 +1,229 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Fire Extinguisher Service API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/api"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "responses": {
+          "200": {
+            "description": "Service is healthy"
+          }
+        }
+      }
+    },
+    "/extinguishers": {
+      "post": {
+        "summary": "Register a fire extinguisher",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExtinguisherCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Extinguisher created"
+          },
+          "409": {
+            "description": "Serial number already exists"
+          }
+        }
+      },
+      "get": {
+        "summary": "List fire extinguishers",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          { "in": "query", "name": "status", "schema": { "$ref": "#/components/schemas/ExtinguisherStatus" } },
+          { "in": "query", "name": "type", "schema": { "$ref": "#/components/schemas/ExtinguisherType" } },
+          { "in": "query", "name": "building", "schema": { "type": "string" } },
+          { "in": "query", "name": "floor", "schema": { "type": "string" } },
+          { "in": "query", "name": "zone", "schema": { "type": "string" } },
+          { "in": "query", "name": "expiryBefore", "schema": { "type": "string", "format": "date" } },
+          { "in": "query", "name": "search", "schema": { "type": "string" } },
+          { "in": "query", "name": "page", "schema": { "type": "integer", "minimum": 1 } },
+          { "in": "query", "name": "limit", "schema": { "type": "integer", "minimum": 1, "maximum": 100 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Extinguisher list"
+          }
+        }
+      }
+    },
+    "/extinguishers/{id}": {
+      "get": {
+        "summary": "View fire extinguisher details",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          { "$ref": "#/components/parameters/ExtinguisherId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Extinguisher details"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update fire extinguisher",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          { "$ref": "#/components/parameters/ExtinguisherId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExtinguisherUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Extinguisher updated"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Retire fire extinguisher",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          { "$ref": "#/components/parameters/ExtinguisherId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Extinguisher retired"
+          }
+        }
+      }
+    },
+    "/extinguishers/{id}/status": {
+      "patch": {
+        "summary": "Update fire extinguisher status",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          { "$ref": "#/components/parameters/ExtinguisherId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StatusUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Status updated"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "parameters": {
+      "ExtinguisherId": {
+        "in": "path",
+        "name": "id",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
+    "schemas": {
+      "ExtinguisherType": {
+        "type": "string",
+        "enum": ["WATER", "CO2", "FOAM", "DRY_CHEMICAL"]
+      },
+      "ExtinguisherSize": {
+        "type": "string",
+        "enum": ["1.5 lb", "5 lb", "9 lb", "12 lb"]
+      },
+      "ExtinguisherStatus": {
+        "type": "string",
+        "enum": ["ACTIVE", "DUE_FOR_INSPECTION", "UNDER_MAINTENANCE", "EXPIRED", "RETIRED"]
+      },
+      "ExtinguisherCreate": {
+        "type": "object",
+        "required": ["serialNumber", "location", "building", "type", "size", "installationDate", "expiryDate"],
+        "properties": {
+          "serialNumber": { "type": "string" },
+          "location": { "type": "string" },
+          "building": { "type": "string" },
+          "floor": { "type": "string" },
+          "zone": { "type": "string" },
+          "type": { "$ref": "#/components/schemas/ExtinguisherType" },
+          "size": { "$ref": "#/components/schemas/ExtinguisherSize" },
+          "installationDate": { "type": "string", "format": "date" },
+          "expiryDate": { "type": "string", "format": "date" },
+          "status": { "$ref": "#/components/schemas/ExtinguisherStatus" }
+        }
+      },
+      "ExtinguisherUpdate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ExtinguisherCreate"
+          }
+        ]
+      },
+      "StatusUpdate": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "status": { "$ref": "#/components/schemas/ExtinguisherStatus" },
+          "reason": { "type": "string" }
+        }
+      }
+    }
+  }
+}

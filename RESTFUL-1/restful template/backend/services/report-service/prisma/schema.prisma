@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ReportType {
+  DASHBOARD
+  INVENTORY
+  INSPECTIONS
+  COMPLIANCE
+  MAINTENANCE
+}
+
+enum ExportFormat {
+  PDF
+  CSV
+}
+
+enum ExportStatus {
+  COMPLETED
+  FAILED
+}
+
+model ReportExport {
+  id                String       @id @default(uuid())
+  requestedByUserId String       @map("requested_by_user_id")
+  reportType        ReportType   @map("report_type")
+  format            ExportFormat
+  filters           Json?
+  status            ExportStatus
+  fileName          String?      @map("file_name")
+  filePath          String?      @map("file_path")
+  errorMessage      String?      @map("error_message")
+  createdAt         DateTime     @default(now()) @map("created_at")
+  completedAt       DateTime?    @map("completed_at")
+
+  @@index([requestedByUserId, createdAt])
+  @@index([reportType, format])
+  @@index([status, createdAt])
+  @@map("report_exports")
+}

@@ -1,0 +1,137 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Inspection and Maintenance Service API",
+    "version": "1.0.0"
+  },
+  "servers": [{ "url": "/api" }],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "responses": { "200": { "description": "Service is healthy" } }
+      }
+    },
+    "/inspections": {
+      "post": {
+        "summary": "Schedule inspection",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ScheduleInspection" } } }
+        },
+        "responses": { "201": { "description": "Inspection scheduled" } }
+      },
+      "get": {
+        "summary": "List inspections",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "in": "query", "name": "status", "schema": { "$ref": "#/components/schemas/InspectionStatus" } },
+          { "in": "query", "name": "extinguisherId", "schema": { "type": "string", "format": "uuid" } },
+          { "in": "query", "name": "assignedInspectorId", "schema": { "type": "string", "format": "uuid" } },
+          { "in": "query", "name": "fromDate", "schema": { "type": "string", "format": "date" } },
+          { "in": "query", "name": "toDate", "schema": { "type": "string", "format": "date" } },
+          { "in": "query", "name": "page", "schema": { "type": "integer", "minimum": 1 } },
+          { "in": "query", "name": "limit", "schema": { "type": "integer", "minimum": 1, "maximum": 100 } }
+        ],
+        "responses": { "200": { "description": "Inspection list" } }
+      }
+    },
+    "/inspections/{id}": {
+      "get": {
+        "summary": "View inspection",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/InspectionId" }],
+        "responses": { "200": { "description": "Inspection details" } }
+      },
+      "put": {
+        "summary": "Update inspection",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/InspectionId" }],
+        "responses": { "200": { "description": "Inspection updated" } }
+      }
+    },
+    "/inspections/{id}/complete": {
+      "patch": {
+        "summary": "Complete inspection",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/InspectionId" }],
+        "responses": { "200": { "description": "Inspection completed" } }
+      }
+    },
+    "/inspections/{id}/cancel": {
+      "patch": {
+        "summary": "Cancel inspection",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/InspectionId" }],
+        "responses": { "200": { "description": "Inspection cancelled" } }
+      }
+    },
+    "/maintenance": {
+      "post": {
+        "summary": "Log maintenance",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MaintenanceCreate" } } }
+        },
+        "responses": { "201": { "description": "Maintenance logged" } }
+      },
+      "get": {
+        "summary": "List maintenance logs",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "Maintenance list" } }
+      }
+    },
+    "/maintenance/{id}": {
+      "get": {
+        "summary": "View maintenance log",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "string", "format": "uuid" } }],
+        "responses": { "200": { "description": "Maintenance details" } }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" }
+    },
+    "parameters": {
+      "InspectionId": {
+        "in": "path",
+        "name": "id",
+        "required": true,
+        "schema": { "type": "string", "format": "uuid" }
+      }
+    },
+    "schemas": {
+      "InspectionStatus": {
+        "type": "string",
+        "enum": ["SCHEDULED", "COMPLETED", "CANCELLED", "OVERDUE"]
+      },
+      "ScheduleInspection": {
+        "type": "object",
+        "required": ["extinguisherId", "inspectionDate", "inspectionTime"],
+        "properties": {
+          "extinguisherId": { "type": "string", "format": "uuid" },
+          "assignedInspectorId": { "type": "string", "format": "uuid" },
+          "inspectionDate": { "type": "string", "format": "date" },
+          "inspectionTime": { "type": "string", "example": "09:30" }
+        }
+      },
+      "MaintenanceCreate": {
+        "type": "object",
+        "required": ["extinguisherId", "actionTaken", "maintenanceDate"],
+        "properties": {
+          "extinguisherId": { "type": "string", "format": "uuid" },
+          "inspectionId": { "type": "string", "format": "uuid" },
+          "actionTaken": { "type": "string" },
+          "maintenanceDate": { "type": "string", "format": "date" },
+          "issuesIdentified": { "type": "string" },
+          "notes": { "type": "string" },
+          "recommendations": { "type": "string" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ExtinguisherType {
+  WATER
+  CO2
+  FOAM
+  DRY_CHEMICAL
+}
+
+enum ExtinguisherSize {
+  SIZE_1_5_LB @map("1.5 lb")
+  SIZE_5_LB   @map("5 lb")
+  SIZE_9_LB   @map("9 lb")
+  SIZE_12_LB  @map("12 lb")
+}
+
+enum ExtinguisherStatus {
+  ACTIVE
+  DUE_FOR_INSPECTION
+  UNDER_MAINTENANCE
+  EXPIRED
+  RETIRED
+}
+
+model FireExtinguisher {
+  id               String                    @id @default(uuid())
+  serialNumber     String                    @unique @map("serial_number")
+  location         String
+  building         String
+  floor            String?
+  zone             String?
+  type             ExtinguisherType
+  size             ExtinguisherSize
+  installationDate DateTime                  @map("installation_date") @db.Date
+  expiryDate       DateTime                  @map("expiry_date") @db.Date
+  status           ExtinguisherStatus        @default(ACTIVE)
+  createdByUserId  String?                   @map("created_by_user_id")
+  updatedByUserId  String?                   @map("updated_by_user_id")
+  createdAt        DateTime                  @default(now()) @map("created_at")
+  updatedAt        DateTime                  @updatedAt @map("updated_at")
+  statusHistory    ExtinguisherStatusHistory[]
+
+  @@index([serialNumber])
+  @@index([status])
+  @@index([type])
+  @@index([expiryDate])
+  @@index([building, floor, zone])
+  @@map("fire_extinguishers")
+}
+
+model ExtinguisherStatusHistory {
+  id              String             @id @default(uuid())
+  extinguisherId  String             @map("extinguisher_id")
+  oldStatus       ExtinguisherStatus? @map("old_status")
+  newStatus       ExtinguisherStatus  @map("new_status")
+  reason          String?
+  changedByUserId String?            @map("changed_by_user_id")
+  createdAt       DateTime           @default(now()) @map("created_at")
+  extinguisher    FireExtinguisher   @relation(fields: [extinguisherId], references: [id], onDelete: Cascade)
+
+  @@index([extinguisherId, createdAt])
+  @@index([newStatus])
+  @@map("extinguisher_status_history")
+}
