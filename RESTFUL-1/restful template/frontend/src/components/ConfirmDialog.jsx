@@ -1,3 +1,5 @@
+import React from "react";
+
 import Button from "./Button";
 
 function ConfirmDialog({ open, title, message, confirmLabel = "Confirm", onConfirm, onCancel }) {

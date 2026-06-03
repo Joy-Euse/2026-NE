@@ -1,3 +1,5 @@
+import React from "react";
+
 function Alert({ type = "info", children }) {
   const styles = {
     error: "border-danger/20 bg-danger/5 text-danger",

@@ -1,3 +1,5 @@
+import React from "react";
+
 function Card({ children, title, action }) {
   return (
     <section className="rounded-md border border-slate-200 bg-white p-5 shadow-sm">

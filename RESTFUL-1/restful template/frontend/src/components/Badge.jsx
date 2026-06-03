@@ -1,3 +1,5 @@
+import React from "react";
+
 function Badge({ children, tone = "slate" }) {
   const styles = {
     slate: "bg-slate-100 text-slate-700",

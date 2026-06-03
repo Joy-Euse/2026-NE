@@ -1,3 +1,5 @@
+import React from "react";
+
 function EmptyState({ title = "No records", message = "Nothing matches the current filters." }) {
   return (
     <div className="rounded-md border border-dashed border-slate-300 bg-white p-8 text-center">

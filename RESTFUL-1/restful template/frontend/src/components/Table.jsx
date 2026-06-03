@@ -1,3 +1,4 @@
+import React from "react";
 import EmptyState from "./EmptyState";
 
 function Table({ columns, rows, getRowKey, actions }) {

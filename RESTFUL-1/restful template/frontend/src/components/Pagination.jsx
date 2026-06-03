@@ -1,3 +1,4 @@
+import React from "react";
 import Button from "./Button";
 
 function Pagination({ page, total, limit, onPageChange }) {
