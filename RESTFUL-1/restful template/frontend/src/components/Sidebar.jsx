@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
-import { FiBell, FiClipboard, FiFileText, FiGrid, FiLogOut, FiTool, FiUser, FiUsers } from "react-icons/fi";
+import { FiBell, FiClipboard, FiFileText, FiGrid, FiLogOut, FiTool, FiUser, FiUsers, FiUserPlus, FiPackage } from "react-icons/fi";
 import { MdOutlineFireExtinguisher } from "react-icons/md";
 import { logout } from "../redux/authSlice";
 import ConfirmDialog from "./ConfirmDialog";
@@ -9,7 +9,10 @@ import ConfirmDialog from "./ConfirmDialog";
 const links = [
   { to: "/dashboard", label: "Dashboard", icon: FiGrid, roles: ["ADMIN", "INSPECTOR", "USER"] },
   { to: "/extinguishers", label: "Extinguishers", icon: MdOutlineFireExtinguisher, roles: ["ADMIN", "INSPECTOR", "USER"] },
+  { to: "/my-extinguishers", label: "My Extinguishers", icon: FiPackage, roles: ["USER"] },
+  { to: "/assign-extinguisher", label: "Assign Extinguisher", icon: FiUserPlus, roles: ["ADMIN"] },
   { to: "/inspections", label: "Inspections", icon: FiClipboard, roles: ["ADMIN", "INSPECTOR", "USER"] },
+  { to: "/inspection-requests", label: "Inspection Requests", icon: FiClipboard, roles: ["ADMIN", "INSPECTOR"] },
   { to: "/maintenance", label: "Maintenance", icon: FiTool, roles: ["ADMIN", "INSPECTOR"] },
   { to: "/notifications", label: "Notifications", icon: FiBell, roles: ["ADMIN", "INSPECTOR", "USER"] },
   { to: "/reports", label: "Reports", icon: FiFileText, roles: ["ADMIN", "INSPECTOR"] },
