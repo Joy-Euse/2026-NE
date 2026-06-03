@@ -21,6 +21,7 @@ const toApi = (ext) => ({
   installationDate: ext.installationDate?.toISOString().slice(0, 10),
   expiryDate: ext.expiryDate?.toISOString().slice(0, 10),
   status: ext.status,
+  assignmentStatus: ext.assignment ? "ASSIGNED" : "NOT_ASSIGNED",
   createdAt: ext.createdAt,
   updatedAt: ext.updatedAt,
   assignment: ext.assignment
@@ -131,7 +132,7 @@ export const assignExtinguisher = async (req, res, next) => {
 // GET /api/extinguishers/my
 export const listMyExtinguishers = async (req, res, next) => {
   try {
-    const userId = req.user.sub;
+    const userId = req.user.profileId || req.user.sub;
     const page = Math.max(Number(req.query.page || 1), 1);
     const limit = Math.min(Math.max(Number(req.query.limit || 20), 1), 100);
 

@@ -33,7 +33,13 @@ export const forgotPasswordSchema = Joi.object({
   email: Joi.string().trim().lowercase().email().required(),
 });
 
+export const verifyResetCodeSchema = Joi.object({
+  email: Joi.string().trim().lowercase().email().required(),
+  code: Joi.string().pattern(/^\d{5}$/).required(),
+});
+
 export const resetPasswordSchema = Joi.object({
-  resetToken: Joi.string().required(),
+  email: Joi.string().trim().lowercase().email().required(),
+  code: Joi.string().pattern(/^\d{5}$/).required(),
   newPassword: password,
 });

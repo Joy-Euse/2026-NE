@@ -26,11 +26,16 @@ export const changePassword = async (data) => {
 };
 
 export const forgotPassword = async (email) => {
-  const response = await api.post("/auth/forgot-password", { email });
+  const response = await api.post("/auth/forgot-password", { email }, { skipAuth: true });
+  return response.data;
+};
+
+export const verifyResetCode = async (data) => {
+  const response = await api.post("/auth/verify-reset-code", data, { skipAuth: true });
   return response.data;
 };
 
 export const resetPassword = async (data) => {
-  const response = await api.post("/auth/reset-password", data);
+  const response = await api.post("/auth/reset-password", data, { skipAuth: true });
   return response.data;
 };

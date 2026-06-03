@@ -6,6 +6,7 @@ const publicAuthPaths = new Set([
   "/api/auth/signup",
   "/api/auth/refresh",
   "/api/auth/forgot-password",
+  "/api/auth/verify-reset-code",
   "/api/auth/reset-password",
   "/api/auth/health",
 ]);

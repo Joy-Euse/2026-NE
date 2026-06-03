@@ -1,11 +1,10 @@
-import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
+import bcrypt from "./services/auth-service/node_modules/bcryptjs/index.js";
+import { PrismaClient as AuthPrismaClient } from "./services/auth-service/node_modules/@prisma/client/index.js";
+import { PrismaClient as UserPrismaClient } from "./services/user-service/node_modules/@prisma/client/index.js";
 
 const SALT_ROUNDS = 12;
-const hashPassword = (password) => bcrypt.hash(password, SALT_ROUNDS);
 
-// Auth Service Prisma Client (auth DB)
-const authPrisma = new PrismaClient({
+const authPrisma = new AuthPrismaClient({
   datasources: {
     db: {
       url: process.env.AUTH_DATABASE_URL || "postgresql://postgres:user@localhost:5432/auth_db",
@@ -13,8 +12,7 @@ const authPrisma = new PrismaClient({
   },
 });
 
-// User Service Prisma Client (user DB)
-const userPrisma = new PrismaClient({
+const userPrisma = new UserPrismaClient({
   datasources: {
     db: {
       url: process.env.USER_DATABASE_URL || "postgresql://postgres:user@localhost:5432/user_db",
@@ -34,106 +32,104 @@ const users = [
     email: "inspector1@fire.com",
     password: "Inspector@123456",
     role: "INSPECTOR",
-    firstName: "John",
+    firstName: "Joyeuse",
     lastName: "Inspector",
   },
   {
     email: "inspector2@fire.com",
     password: "Inspector@123456",
     role: "INSPECTOR",
-    firstName: "Jane",
+    firstName: "Iradukunda",
     lastName: "Inspector",
   },
 ];
 
+const hashPassword = (password) => bcrypt.hash(password, SALT_ROUNDS);
+
+const upsertCredential = async (user) => {
+  const existing = await authPrisma.userCredential.findUnique({
+    where: { email: user.email },
+  });
+
+  if (existing) {
+    await authPrisma.userCredential.update({
+      where: { id: existing.id },
+      data: {
+        passwordHash: await hashPassword(user.password),
+        status: "ACTIVE",
+      },
+    });
+    return { ...existing, created: false };
+  }
+
+  const credential = await authPrisma.userCredential.create({
+    data: {
+      email: user.email,
+      passwordHash: await hashPassword(user.password),
+      status: "ACTIVE",
+    },
+  });
+
+  return { ...credential, created: true };
+};
+
+const upsertProfile = async (user, authUserId) => {
+  const existingByEmail = await userPrisma.userProfile.findUnique({
+    where: { email: user.email },
+  });
+
+  if (existingByEmail) {
+    const profile = await userPrisma.userProfile.update({
+      where: { id: existingByEmail.id },
+      data: {
+        authUserId,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        status: "ACTIVE",
+      },
+    });
+
+    return { ...profile, created: false };
+  }
+
+  const profile = await userPrisma.userProfile.create({
+    data: {
+      authUserId,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role,
+      status: "ACTIVE",
+    },
+  });
+
+  return { ...profile, created: true };
+};
+
 async function main() {
-  console.log("🌱 Starting seed process...\n");
+  console.log("Starting database seed...\n");
 
   for (const user of users) {
-    try {
-      // Check if user already exists
-      const existingAuth = await authPrisma.userCredential.findUnique({
-        where: { email: user.email },
-      });
+    const credential = await upsertCredential(user);
+    const profile = await upsertProfile(user, credential.id);
 
-      if (existingAuth) {
-        console.log(`✓ ${user.email} already exists in auth DB`);
-
-        // Check if profile exists
-        const existingProfile = await userPrisma.userProfile.findUnique({
-          where: { email: user.email },
-        });
-
-        if (existingProfile) {
-          console.log(`  ✓ Profile exists with role: ${existingProfile.role}\n`);
-        } else {
-          // Create missing profile
-          const profile = await userPrisma.userProfile.create({
-            data: {
-              authUserId: existingAuth.id,
-              firstName: user.firstName,
-              lastName: user.lastName,
-              email: user.email,
-              role: user.role,
-              status: "ACTIVE",
-            },
-          });
-
-          console.log(`  ✓ Created missing profile`);
-          console.log(`    ID: ${profile.id}`);
-          console.log(`    Role: ${profile.role}\n`);
-        }
-        continue;
-      }
-
-      // Create credential in auth DB
-      const credential = await authPrisma.userCredential.create({
-        data: {
-          email: user.email,
-          passwordHash: await hashPassword(user.password),
-        },
-      });
-
-      console.log(`✓ Created credential in auth DB`);
-      console.log(`  Email: ${user.email}`);
-      console.log(`  Auth ID: ${credential.id}`);
-      console.log(`  Password: ${user.password}`);
-
-      // Create profile in user DB
-      const profile = await userPrisma.userProfile.create({
-        data: {
-          authUserId: credential.id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          role: user.role,
-          status: "ACTIVE",
-        },
-      });
-
-      console.log(`✓ Created profile in user DB`);
-      console.log(`  Profile ID: ${profile.id}`);
-      console.log(`  Role: ${profile.role}\n`);
-    } catch (error) {
-      console.error(`✗ Error processing ${user.email}:`, error.message);
-      console.error("");
-    }
+    console.log(`${credential.created ? "Created" : "Updated"} auth credential: ${user.email}`);
+    console.log(`  Auth ID: ${credential.id}`);
+    console.log(`${profile.created ? "Created" : "Updated"} user profile: ${profile.role}`);
+    console.log(`  Profile ID: ${profile.id}`);
+    console.log(`  Password: ${user.password}\n`);
   }
+
+  console.log("Seed completed successfully.");
 }
 
 main()
-  .then(async () => {
-    await authPrisma.$disconnect();
-    await userPrisma.$disconnect();
-    console.log("✅ Seeding completed successfully!\n");
-    console.log("📝 Created Users:");
-    console.log("   1. admin@fire.com (ADMIN)");
-    console.log("   2. inspector1@fire.com (INSPECTOR)");
-    console.log("   3. inspector2@fire.com (INSPECTOR)\n");
+  .catch((error) => {
+    console.error("Seed failed:", error);
+    process.exitCode = 1;
   })
-  .catch(async (e) => {
-    console.error("❌ Error during seeding:", e);
+  .finally(async () => {
     await authPrisma.$disconnect();
     await userPrisma.$disconnect();
-    process.exit(1);
   });

@@ -65,6 +65,15 @@ function FireExtinguishers() {
     { key: "size", label: "Size" },
     { key: "expiryDate", label: "Expiry" },
     { key: "status", label: "Status", render: (row) => <Badge tone={row.status === "EXPIRED" ? "red" : row.status === "ACTIVE" ? "green" : "amber"}>{row.status}</Badge> },
+    {
+      key: "assignmentStatus",
+      label: "Assignment",
+      render: (row) => (
+        <Badge tone={row.assignment ? "green" : "slate"}>
+          {row.assignment ? "ASSIGNED" : "NOT_ASSIGNED"}
+        </Badge>
+      ),
+    },
   ];
 
   return (

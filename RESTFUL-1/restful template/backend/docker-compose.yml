@@ -40,13 +40,13 @@ services:
       AUDIT_LOG_SERVICE_URL: http://audit-log-service:4007/api/audit-logs
       INTERNAL_SERVICE_TOKEN: replace_with_internal_service_token
       FRONTEND_URL: http://localhost:5174
-      EMAIL_FROM: no-reply@fire-safety.local
-      # ── SMTP — fill these in or leave blank to use Ethereal in development ──
-      SMTP_HOST: ""
+      EMAIL_FROM: iradukundajoyeuse34@gmail.com
+      # SMTP must be configured for real password reset emails.
+      SMTP_HOST: smtp.gmail.com
       SMTP_PORT: "587"
       SMTP_SECURE: "false"
-      SMTP_USER: ""
-      SMTP_PASS: ""
+      SMTP_USER: iradukundajoyeuse34@gmail.com
+      SMTP_PASS: "evwn aynh bxfx ehtc"
     depends_on:
       - auth-db
       - user-service

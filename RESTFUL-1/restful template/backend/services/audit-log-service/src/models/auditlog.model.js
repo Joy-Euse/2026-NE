@@ -1,13 +1,21 @@
 import { query } from "../config/db.js";
 
 export const create = async (data) => {
-  const { user_id, action, resource, description, status } = data;
+  const {
+    userId,
+    action,
+    resource,
+    resourceId,
+    description,
+    status = "SUCCESS",
+    metadata = {},
+  } = data;
 
   const result = await query(
-    `INSERT INTO audit_logs (user_id, action, resource, description, status)
-     VALUES ($1, $2, $3, $4, $5)
+    `INSERT INTO audit_logs (user_id, action, resource, resource_id, description, status, metadata)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
      RETURNING *`,
-    [user_id, action, resource, description, status]
+    [userId, action, resource, resourceId, description, status, metadata]
   );
 
   return result.rows[0];

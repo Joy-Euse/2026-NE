@@ -1,6 +1,6 @@
 export const errorHandler = (err, req, res, next) => {
   const statusCode = err.statusCode || err.status || 500;
-  if (statusCode >= 500) console.error({ requestId: req.requestId, message: err.message });
+  if (statusCode >= 500) console.error({ requestId: req.requestId, message: err.message, stack: err.stack });
   res.status(statusCode).json({
     success: false,
     error: {

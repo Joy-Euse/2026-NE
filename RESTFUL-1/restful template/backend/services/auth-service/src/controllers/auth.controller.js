@@ -5,7 +5,8 @@ import { addDays, addMinutes, createOpaqueToken } from "../utils/tokens.js";
 import { signAccessToken, verifyAccessToken } from "../utils/jwt.js";
 import { createUserProfile, getUserProfileByAuthId } from "../services/user-service.client.js";
 import { writeAuditLog } from "../services/audit.service.js";
-import { buildPasswordResetLink, sendPasswordResetEmail } from "../services/email.service.js";
+import { sendPasswordResetCodeEmail } from "../services/email.service.js";
+import { randomInt } from "node:crypto";
 
 const publicProfile = (profile) => ({
   id: profile.id,
@@ -41,6 +42,29 @@ const assertActive = (credential, profile) => {
     error.code = "ACCOUNT_NOT_ACTIVE";
     throw error;
   }
+};
+
+const createPasswordResetCode = () => String(randomInt(0, 100000)).padStart(5, "0");
+const passwordResetCodeHash = (email, code) => hashToken(`${email.toLowerCase()}:${code}`);
+
+const findValidResetCode = async ({ email, code }) => {
+  const credential = await prisma.userCredential.findUnique({ where: { email } });
+  if (!credential) return null;
+
+  const storedToken = await prisma.passwordResetToken.findUnique({
+    where: { tokenHash: passwordResetCodeHash(email, code) },
+  });
+
+  if (
+    !storedToken ||
+    storedToken.userId !== credential.id ||
+    storedToken.usedAt ||
+    storedToken.expiresAt <= new Date()
+  ) {
+    return null;
+  }
+
+  return { credential, storedToken };
 };
 
 export const register = async (req, res, next) => {
@@ -273,19 +297,27 @@ export const changePassword = async (req, res, next) => {
 
 export const forgotPassword = async (req, res, next) => {
   try {
-    const credential = await prisma.userCredential.findUnique({ where: { email: req.body.email } });
+    const email = req.body.email;
+    const credential = await prisma.userCredential.findUnique({ where: { email } });
 
-    let resetToken;
-    let resetLink;
-    let emailResult;
     if (credential) {
-      resetToken = createOpaqueToken();
-      resetLink = buildPasswordResetLink(resetToken);
-      await prisma.passwordResetToken.create({
-        data: {
+      const resetCode = createPasswordResetCode();
+      await prisma.passwordResetToken.updateMany({
+        where: { userId: credential.id, usedAt: null },
+        data: { usedAt: new Date() },
+      });
+
+      await prisma.passwordResetToken.upsert({
+        where: { tokenHash: passwordResetCodeHash(email, resetCode) },
+        create: {
           userId: credential.id,
-          tokenHash: hashToken(resetToken),
+          tokenHash: passwordResetCodeHash(email, resetCode),
           expiresAt: addMinutes(new Date(), env.passwordResetMinutes),
+        },
+        update: {
+          userId: credential.id,
+          expiresAt: addMinutes(new Date(), env.passwordResetMinutes),
+          usedAt: null,
         },
       });
 
@@ -298,24 +330,32 @@ export const forgotPassword = async (req, res, next) => {
         outcome: "SUCCESS",
       });
 
-      emailResult = await sendPasswordResetEmail({ email: credential.email, resetLink });
+      await sendPasswordResetCodeEmail({ email: credential.email, resetCode });
     }
-
-    // In development expose the reset link and any Ethereal preview URL so
-    // the developer can test without a real inbox.
-    const devData =
-      env.nodeEnv !== "production" && resetLink
-        ? {
-            resetToken,
-            resetLink,
-            ...(emailResult?.previewUrl ? { emailPreviewUrl: emailResult.previewUrl } : {}),
-          }
-        : undefined;
 
     res.json({
       success: true,
-      message: "If the email exists, a password reset link has been sent",
-      data: devData,
+      message: "If the email exists, a password reset code has been sent",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const verifyResetCode = async (req, res, next) => {
+  try {
+    const result = await findValidResetCode({ email: req.body.email, code: req.body.code });
+
+    if (!result) {
+      const error = new Error("Password reset code is invalid or expired");
+      error.statusCode = 400;
+      error.code = "INVALID_RESET_CODE";
+      throw error;
+    }
+
+    res.json({
+      success: true,
+      message: "Reset code verified",
     });
   } catch (error) {
     next(error);
@@ -324,20 +364,19 @@ export const forgotPassword = async (req, res, next) => {
 
 export const resetPassword = async (req, res, next) => {
   try {
-    const tokenHash = hashToken(req.body.resetToken);
-    const storedToken = await prisma.passwordResetToken.findUnique({
-      where: { tokenHash },
-    });
+    const result = await findValidResetCode({ email: req.body.email, code: req.body.code });
 
-    if (!storedToken || storedToken.usedAt || storedToken.expiresAt <= new Date()) {
-      const error = new Error("Password reset token is invalid or expired");
+    if (!result) {
+      const error = new Error("Password reset code is invalid or expired");
       error.statusCode = 400;
-      error.code = "INVALID_RESET_TOKEN";
+      error.code = "INVALID_RESET_CODE";
       throw error;
     }
 
+    const { credential, storedToken } = result;
+
     await prisma.userCredential.update({
-      where: { id: storedToken.userId },
+      where: { id: credential.id },
       data: { passwordHash: await hashPassword(req.body.newPassword) },
     });
 
@@ -347,16 +386,16 @@ export const resetPassword = async (req, res, next) => {
     });
 
     await prisma.refreshToken.updateMany({
-      where: { userId: storedToken.userId, revokedAt: null },
+      where: { userId: credential.id, revokedAt: null },
       data: { revokedAt: new Date() },
     });
 
     await writeAuditLog({
       req,
-      actorUserId: storedToken.userId,
+      actorUserId: credential.id,
       action: "PASSWORD_RESET_COMPLETED",
       resourceType: "USER",
-      resourceId: storedToken.userId,
+      resourceId: credential.id,
       outcome: "SUCCESS",
     });
 

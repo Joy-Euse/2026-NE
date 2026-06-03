@@ -3,11 +3,13 @@ import { create, findAll, findById, findByUserId } from "../models/auditlog.mode
 export const createAuditLog = async (req, res, next) => {
   try {
     const log = await create({
-      user_id: req.body.user_id || req.body.actor_user_id || null,
+      userId: req.body.userId || req.body.user_id || req.body.actorUserId || req.body.actor_user_id || null,
       action: req.body.action,
-      resource: req.body.resource || req.body.resource_type,
-      description: req.body.description || JSON.stringify(req.body.metadata || {}),
-      status: req.body.status || req.body.outcome,
+      resource: req.body.resource || req.body.resourceType || req.body.resource_type || "UNKNOWN",
+      resourceId: req.body.resourceId || req.body.resource_id || null,
+      description: req.body.description || "",
+      status: req.body.status || req.body.outcome || "SUCCESS",
+      metadata: req.body.metadata || {},
     });
 
     res.status(201).json({ success: true, data: log });

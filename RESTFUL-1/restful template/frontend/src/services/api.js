@@ -14,7 +14,11 @@ const cleanParams = (params) => {
 
 api.interceptors.request.use((config) => {
   const { accessToken } = loadAuth();
-  if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
+  if (config.skipAuth) {
+    delete config.headers.Authorization;
+  } else if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
+  }
   config.params = cleanParams(config.params);
   return config;
 });

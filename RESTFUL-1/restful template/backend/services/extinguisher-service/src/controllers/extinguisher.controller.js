@@ -34,6 +34,16 @@ const toApi = (extinguisher) => ({
   updatedByUserId: extinguisher.updatedByUserId,
   createdAt: extinguisher.createdAt,
   updatedAt: extinguisher.updatedAt,
+  assignmentStatus: extinguisher.assignment ? "ASSIGNED" : "NOT_ASSIGNED",
+  assignment: extinguisher.assignment
+    ? {
+        id: extinguisher.assignment.id,
+        assignedUserId: extinguisher.assignment.assignedUserId,
+        assignedByAdminId: extinguisher.assignment.assignedByAdminId,
+        assignedAt: extinguisher.assignment.assignedAt,
+        notes: extinguisher.assignment.notes,
+      }
+    : null,
   statusHistory: extinguisher.statusHistory?.map((item) => ({
     id: item.id,
     oldStatus: item.oldStatus,
@@ -69,9 +79,10 @@ const ensureDateRange = (data, current) => {
 const findByIdOrThrow = async (id, includeHistory = false) => {
   const extinguisher = await prisma.fireExtinguisher.findUnique({
     where: { id },
-    include: includeHistory
-      ? { statusHistory: { orderBy: { createdAt: "desc" } } }
-      : undefined,
+    include: {
+      assignment: true,
+      ...(includeHistory ? { statusHistory: { orderBy: { createdAt: "desc" } } } : {}),
+    },
   });
 
   if (!extinguisher) {
@@ -141,6 +152,12 @@ export const listExtinguishers = async (req, res, next) => {
     const page = Math.max(Number(query.page || 1), 1);
     const limit = Math.min(Math.max(Number(query.limit || 20), 1), 100);
     const where = {};
+    const isRegularUser = req.user.role === "USER";
+    const requesterProfileId = req.user.profileId || req.user.sub;
+
+    if (isRegularUser) {
+      where.assignment = { assignedUserId: requesterProfileId };
+    }
 
     if (query.status) where.status = query.status;
     if (query.type) where.type = query.type;
@@ -160,6 +177,7 @@ export const listExtinguishers = async (req, res, next) => {
     const [items, total] = await Promise.all([
       prisma.fireExtinguisher.findMany({
         where,
+        include: { assignment: true },
         skip: (page - 1) * limit,
         take: limit,
         orderBy: { createdAt: "desc" },
@@ -180,6 +198,15 @@ export const listExtinguishers = async (req, res, next) => {
 export const getExtinguisherById = async (req, res, next) => {
   try {
     const extinguisher = await findByIdOrThrow(req.params.id, true);
+    if (req.user.role === "USER") {
+      const requesterProfileId = req.user.profileId || req.user.sub;
+      if (extinguisher.assignment?.assignedUserId !== requesterProfileId) {
+        const error = new Error("Fire extinguisher not found");
+        error.statusCode = 404;
+        error.code = "EXTINGUISHER_NOT_FOUND";
+        throw error;
+      }
+    }
     res.json({ success: true, data: toApi(extinguisher) });
   } catch (error) {
     next(error);
@@ -210,7 +237,7 @@ export const updateExtinguisher = async (req, res, next) => {
             }
           : undefined,
       },
-      include: { statusHistory: { orderBy: { createdAt: "desc" } } },
+      include: { assignment: true, statusHistory: { orderBy: { createdAt: "desc" } } },
     });
 
     await writeAuditLog({
@@ -253,7 +280,7 @@ export const updateExtinguisherStatus = async (req, res, next) => {
           },
         },
       },
-      include: { statusHistory: { orderBy: { createdAt: "desc" } } },
+      include: { assignment: true, statusHistory: { orderBy: { createdAt: "desc" } } },
     });
 
     await writeAuditLog({
@@ -290,7 +317,7 @@ export const retireExtinguisher = async (req, res, next) => {
               },
             },
       },
-      include: { statusHistory: { orderBy: { createdAt: "desc" } } },
+      include: { assignment: true, statusHistory: { orderBy: { createdAt: "desc" } } },
     });
 
     await writeAuditLog({
