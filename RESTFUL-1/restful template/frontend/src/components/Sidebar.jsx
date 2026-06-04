@@ -12,7 +12,7 @@ const links = [
   { to: "/my-extinguishers", label: "My Extinguishers", icon: FiPackage, roles: ["USER"] },
   { to: "/assign-extinguisher", label: "Assign Extinguisher", icon: FiUserPlus, roles: ["ADMIN"] },
   { to: "/inspections", label: "Inspections", icon: FiClipboard, roles: ["ADMIN", "INSPECTOR", "USER"] },
-  { to: "/inspection-requests", label: "Inspection Requests", icon: FiClipboard, roles: ["ADMIN", "INSPECTOR"] },
+  { to: "/inspection-requests", label: "Inspection Requests", icon: FiClipboard, roles: ["ADMIN"] },
   { to: "/maintenance", label: "Maintenance", icon: FiTool, roles: ["ADMIN", "INSPECTOR"] },
   { to: "/notifications", label: "Notifications", icon: FiBell, roles: ["ADMIN", "INSPECTOR", "USER"] },
   { to: "/reports", label: "Reports", icon: FiFileText, roles: ["ADMIN", "INSPECTOR"] },

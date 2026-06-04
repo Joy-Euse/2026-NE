@@ -93,7 +93,7 @@ export const buildMaintenanceReport = async ({ req, filters }) => {
   return {
     summary: {
       total: maintenance.length,
-      frequencyByInspector: countBy(maintenance, "inspectorId"),
+      frequencyByInspector: countBy(maintenance, "inspectorName"),
       frequencyByExtinguisher: countBy(maintenance, "extinguisherId"),
     },
     recent: maintenance.slice(0, 10),

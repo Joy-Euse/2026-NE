@@ -2,6 +2,7 @@ import { prisma } from "../config/prisma.js";
 import { writeAuditLog } from "../services/audit.service.js";
 import { getExtinguisher } from "../services/extinguisher-service.client.js";
 import { createNotification } from "../services/notification-service.client.js";
+import { getInternalUser } from "../services/user-service.client.js";
 
 const toDate = (value) => (value ? new Date(value) : value);
 
@@ -10,6 +11,7 @@ const toApi = (log) => ({
   extinguisherId: log.extinguisherId,
   inspectionId: log.inspectionId,
   inspectorId: log.inspectorId,
+  inspectorName: log.inspectorName || null,
   actionTaken: log.actionTaken,
   maintenanceDate: log.maintenanceDate?.toISOString().slice(0, 10),
   issuesIdentified: log.issuesIdentified,
@@ -18,6 +20,36 @@ const toApi = (log) => ({
   createdAt: log.createdAt,
   updatedAt: log.updatedAt,
 });
+
+const userDisplayName = (user) =>
+  [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim() || user?.email || null;
+
+const currentUserId = (req) => req.user.profileId || req.user.sub;
+
+const withInspectorName = async (req, log) => {
+  try {
+    const inspector = await getInternalUser({ req, userId: log.inspectorId });
+    return { ...log, inspectorName: userDisplayName(inspector) };
+  } catch {
+    return { ...log, inspectorName: null };
+  }
+};
+
+const withInspectorNames = async (req, logs) => {
+  const uniqueInspectorIds = [...new Set(logs.map((log) => log.inspectorId).filter(Boolean))];
+  const names = new Map();
+
+  await Promise.all(uniqueInspectorIds.map(async (inspectorId) => {
+    try {
+      const inspector = await getInternalUser({ req, userId: inspectorId });
+      names.set(inspectorId, userDisplayName(inspector));
+    } catch {
+      names.set(inspectorId, null);
+    }
+  }));
+
+  return logs.map((log) => ({ ...log, inspectorName: names.get(log.inspectorId) || null }));
+};
 
 const findMaintenanceOrThrow = async (id) => {
   const log = await prisma.maintenanceLog.findUnique({ where: { id } });
@@ -48,7 +80,7 @@ export const createMaintenance = async (req, res, next) => {
       data: {
         extinguisherId: req.body.extinguisherId,
         inspectionId: req.body.inspectionId || null,
-        inspectorId: req.user.sub,
+        inspectorId: currentUserId(req),
         actionTaken: req.body.actionTaken,
         maintenanceDate: toDate(req.body.maintenanceDate),
         issuesIdentified: req.body.issuesIdentified || null,
@@ -59,7 +91,7 @@ export const createMaintenance = async (req, res, next) => {
 
     await createNotification({
       req,
-      userId: req.user.sub,
+      userId: currentUserId(req),
       type: "MAINTENANCE_LOGGED",
       title: "Maintenance logged",
       message: `Maintenance logged for extinguisher ${log.extinguisherId}`,
@@ -75,7 +107,7 @@ export const createMaintenance = async (req, res, next) => {
       metadata: { extinguisherId: log.extinguisherId },
     });
 
-    res.status(201).json({ success: true, data: toApi(log) });
+    res.status(201).json({ success: true, data: toApi(await withInspectorName(req, log)) });
   } catch (error) {
     next(error);
   }
@@ -106,7 +138,8 @@ export const listMaintenance = async (req, res, next) => {
       prisma.maintenanceLog.count({ where }),
     ]);
 
-    res.json({ success: true, data: items.map(toApi), meta: { page, limit, total } });
+    const enrichedItems = await withInspectorNames(req, items);
+    res.json({ success: true, data: enrichedItems.map(toApi), meta: { page, limit, total } });
   } catch (error) {
     next(error);
   }
@@ -114,7 +147,8 @@ export const listMaintenance = async (req, res, next) => {
 
 export const getMaintenanceById = async (req, res, next) => {
   try {
-    res.json({ success: true, data: toApi(await findMaintenanceOrThrow(req.params.id)) });
+    const log = await findMaintenanceOrThrow(req.params.id);
+    res.json({ success: true, data: toApi(await withInspectorName(req, log)) });
   } catch (error) {
     next(error);
   }
