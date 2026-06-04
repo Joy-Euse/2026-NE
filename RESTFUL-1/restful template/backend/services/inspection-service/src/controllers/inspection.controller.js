@@ -28,6 +28,8 @@ const toApi = (inspection) => ({
   updatedAt: inspection.updatedAt,
 });
 
+const requesterUserId = (req) => req.user.profileId || req.user.sub;
+
 const findInspectionOrThrow = async (id) => {
   const inspection = await prisma.inspection.findUnique({ where: { id } });
 
@@ -100,7 +102,7 @@ const markOverdue = async (req, inspections) => {
 export const scheduleInspection = async (req, res, next) => {
   try {
     const role = req.user.role;
-    const userId = req.user.sub;
+    const userId = requesterUserId(req);
 
     if (role === "USER") {
       // Verify extinguisher is assigned to this user
@@ -239,7 +241,7 @@ export const listInspections = async (req, res, next) => {
     const page = Math.max(Number(req.query.page || 1), 1);
     const limit = Math.min(Math.max(Number(req.query.limit || 20), 1), 100);
     const role = req.user.role;
-    const userId = req.user.sub;
+    const userId = requesterUserId(req);
 
     const where = {};
 
@@ -288,7 +290,7 @@ export const getInspectionById = async (req, res, next) => {
   try {
     const raw = await findInspectionOrThrow(req.params.id);
     const role = req.user.role;
-    const userId = req.user.sub;
+    const userId = requesterUserId(req);
 
     // USERs can only view their own inspections
     if (role === "USER" && raw.scheduledByUserId !== userId) {
@@ -354,7 +356,7 @@ export const completeInspection = async (req, res, next) => {
     ensureMutable(current);
 
     // INSPECTOR can only complete inspections assigned to them
-    if (req.user.role === "INSPECTOR" && current.assignedInspectorId !== req.user.sub) {
+    if (req.user.role === "INSPECTOR" && current.assignedInspectorId !== requesterUserId(req)) {
       const error = new Error("You can only complete inspections assigned to you");
       error.statusCode = 403;
       error.code = "FORBIDDEN";

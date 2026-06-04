@@ -24,6 +24,14 @@ const filtersFromQuery = (query) => ({
   limit: query.limit,
 });
 
+const toJsonSafeFilters = (filters = {}) =>
+  Object.fromEntries(
+    Object.entries(filters).map(([key, value]) => [
+      key,
+      value instanceof Date ? value.toISOString().slice(0, 10) : value,
+    ]),
+  );
+
 const auditView = (req, reportType, metadata) =>
   writeAuditLog({
     req,
@@ -91,10 +99,12 @@ export const createExport = async (req, res, next) => {
   let exportRecord;
 
   try {
-    const { reportType, format, filters } = req.body;
+    const { reportType, format } = req.body;
+    const filters = toJsonSafeFilters(req.body.filters);
+
     exportRecord = await prisma.reportExport.create({
       data: {
-        requestedByUserId: req.user.sub,
+        requestedByUserId: req.user.profileId || req.user.sub,
         reportType,
         format,
         filters,

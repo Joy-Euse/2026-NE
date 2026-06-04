@@ -2,7 +2,9 @@ const buildQuery = (params = {}) => {
   const query = new URLSearchParams();
 
   Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== "") query.set(key, value);
+    if (value !== undefined && value !== null && value !== "") {
+      query.set(key, value instanceof Date ? value.toISOString().slice(0, 10) : value);
+    }
   });
 
   const text = query.toString();

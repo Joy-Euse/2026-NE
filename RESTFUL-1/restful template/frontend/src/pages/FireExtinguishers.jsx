@@ -95,7 +95,7 @@ function FireExtinguishers() {
               <FormField key={key} label={key.replace(/([A-Z])/g, " $1")}><input className="w-full rounded-md border border-slate-300 px-3 py-2" value={form[key] || ""} onChange={(e) => setForm({ ...form, [key]: e.target.value })} /></FormField>
             ))}
             <FormField label="Type"><select className="w-full rounded-md border border-slate-300 px-3 py-2" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}><option>WATER</option><option>CO2</option><option>FOAM</option><option>DRY_CHEMICAL</option></select></FormField>
-            <FormField label="Size"><select className="w-full rounded-md border border-slate-300 px-3 py-2" value={form.size} onChange={(e) => setForm({ ...form, size: e.target.value })}><option>1.5 lb</option><option>5 lb</option><option>9 lb</option><option>12 lb</option></select></FormField>
+            <FormField label="Size"><select className="w-full rounded-md border border-slate-300 px-3 py-2" value={form.size} onChange={(e) => setForm({ ...form, size: e.target.value })}><option>2.5 lb</option><option>5 lb</option><option>9 lb</option><option>12 lb</option></select></FormField>
             <FormField label="Installation date"><input type="date" className="w-full rounded-md border border-slate-300 px-3 py-2" value={form.installationDate} onChange={(e) => setForm({ ...form, installationDate: e.target.value })} /></FormField>
             <FormField label="Expiry date"><input type="date" className="w-full rounded-md border border-slate-300 px-3 py-2" value={form.expiryDate} onChange={(e) => setForm({ ...form, expiryDate: e.target.value })} /></FormField>
             <div className="flex items-end gap-2 md:col-span-4">
