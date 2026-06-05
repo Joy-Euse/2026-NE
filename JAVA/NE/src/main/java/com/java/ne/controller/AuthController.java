@@ -5,7 +5,9 @@ package com.java.ne.controller;
  * Basic file note: this source file is part of the Utility Billing System backend.
  */
 import com.java.ne.dto.request.LoginRequest;
+import com.java.ne.dto.request.ResendOtpRequest;
 import com.java.ne.dto.request.RegisterRequest;
+import com.java.ne.dto.request.VerifyEmailRequest;
 import com.java.ne.dto.response.ApiMessageResponse;
 import com.java.ne.dto.response.AuthResponse;
 import com.java.ne.dto.response.UserResponse;
@@ -37,6 +39,16 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
+    }
+
+    @PostMapping("/verify-email")
+    public ResponseEntity<ApiMessageResponse> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
+        return ResponseEntity.ok(authService.verifyEmail(request));
+    }
+
+    @PostMapping("/resend-otp")
+    public ResponseEntity<ApiMessageResponse> resendOtp(@Valid @RequestBody ResendOtpRequest request) {
+        return ResponseEntity.ok(authService.resendOtp(request));
     }
 
     @PostMapping("/logout")

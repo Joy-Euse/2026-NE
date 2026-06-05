@@ -15,4 +15,6 @@ public interface TariffService {
     Page<TariffResponse> getAll(Pageable pageable);
 
     TariffResponse getById(Long id);
+
+    TariffResponse update(Long id, TariffRequest request);
 }

@@ -23,6 +23,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Builder
@@ -55,6 +57,16 @@ public class AppUser extends BaseAuditableEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
+
+    /*
+     * Email verification is required for newly registered customers before login.
+     */
+    @Builder.Default
+    private Boolean emailVerified = false;
+
+    private String otpCode;
+
+    private LocalDateTime otpExpiresAt;
 
     // Only populated when role == ROLE_CUSTOMER
     @OneToOne(fetch = FetchType.LAZY)

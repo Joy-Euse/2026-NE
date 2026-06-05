@@ -18,6 +18,7 @@ public record UserResponse(
         Role role,
         Long customerId,
         String address,
+        Boolean emailVerified,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {

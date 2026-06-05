@@ -36,12 +36,6 @@ public class CustomerController {
 
     private final CustomerService customerService;
 
-    @PostMapping
-    @PreAuthorize("denyAll()")
-    public ResponseEntity<CustomerResponse> create(@Valid @RequestBody CustomerRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(customerService.create(request));
-    }
-
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','OPERATOR','FINANCE')")
     public ResponseEntity<Page<CustomerResponse>> getAll(Pageable pageable) {
