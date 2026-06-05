@@ -24,7 +24,8 @@ import org.springframework.stereotype.Component;
 public class BillingMapper {
 
     public UserResponse toUserResponse(AppUser user) {
-        return new UserResponse(user.getId(), user.getFullName(), user.getEmail(), user.getPhoneNumber(), user.getStatus(), user.getRole(), user.getCreatedAt(), user.getUpdatedAt());
+        Long customerId = user.getCustomer() == null ? null : user.getCustomer().getId();
+        return new UserResponse(user.getId(), user.getFullName(), user.getEmail(), user.getPhoneNumber(), user.getStatus(), user.getRole(), customerId, user.getCreatedAt(), user.getUpdatedAt());
     }
 
     public CustomerResponse toCustomerResponse(Customer customer) {

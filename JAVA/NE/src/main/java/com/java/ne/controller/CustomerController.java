@@ -3,6 +3,7 @@ package com.java.ne.controller;
 import com.java.ne.dto.request.CustomerRequest;
 import com.java.ne.dto.response.CustomerResponse;
 import com.java.ne.service.CustomerService;
+import com.java.ne.util.PageableUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,6 +26,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class CustomerController {
 
+    private static final java.util.Set<String> CUSTOMER_SORT_FIELDS = java.util.Set.of(
+            "id", "fullName", "nationalId", "email", "phoneNumber", "address", "status", "createdAt", "updatedAt"
+    );
+
     private final CustomerService customerService;
 
     @PostMapping
@@ -36,7 +41,7 @@ public class CustomerController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','OPERATOR','FINANCE')")
     public ResponseEntity<Page<CustomerResponse>> getAll(Pageable pageable) {
-        return ResponseEntity.ok(customerService.getAll(pageable));
+        return ResponseEntity.ok(customerService.getAll(PageableUtils.allowOnly(pageable, CUSTOMER_SORT_FIELDS, "id")));
     }
 
     @GetMapping("/{id}")
@@ -60,6 +65,6 @@ public class CustomerController {
     @GetMapping("/search")
     @PreAuthorize("hasAnyRole('ADMIN','OPERATOR','FINANCE')")
     public ResponseEntity<Page<CustomerResponse>> search(@RequestParam String keyword, Pageable pageable) {
-        return ResponseEntity.ok(customerService.search(keyword, pageable));
+        return ResponseEntity.ok(customerService.search(keyword, PageableUtils.allowOnly(pageable, CUSTOMER_SORT_FIELDS, "id")));
     }
 }

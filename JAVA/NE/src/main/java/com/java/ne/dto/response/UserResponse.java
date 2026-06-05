@@ -12,6 +12,7 @@ public record UserResponse(
         String phoneNumber,
         AccountStatus status,
         Role role,
+        Long customerId,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {

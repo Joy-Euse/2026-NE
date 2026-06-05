@@ -8,6 +8,7 @@ public record AuthResponse(
         Long userId,
         String fullName,
         String email,
-        Role role
+        Role role,
+        Long customerId   // non-null when role == ROLE_CUSTOMER
 ) {
 }
