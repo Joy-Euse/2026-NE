@@ -1,5 +1,9 @@
 package com.java.ne.config;
 
+
+/*
+ * Basic file note: this source file is part of the Utility Billing System backend.
+ */
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;

@@ -1,5 +1,9 @@
 package com.java.ne.security;
 
+
+/*
+ * Basic file note: this source file is part of the Utility Billing System backend.
+ */
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,11 +24,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomUserDetailsService userDetailsService;
+    private final JwtBlacklistService jwtBlacklistService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = tokenFrom(request);
-        if (token != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (token != null && !jwtBlacklistService.isBlacklisted(token) && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
                 String username = jwtTokenProvider.getUsername(token);
                 var userDetails = userDetailsService.loadUserByUsername(username);

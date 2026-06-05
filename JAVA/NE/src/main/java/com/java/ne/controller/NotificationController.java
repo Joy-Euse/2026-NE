@@ -1,5 +1,9 @@
 package com.java.ne.controller;
 
+
+/*
+ * Basic file note: this source file is part of the Utility Billing System backend.
+ */
 import com.java.ne.dto.response.NotificationResponse;
 import com.java.ne.service.NotificationService;
 import lombok.RequiredArgsConstructor;

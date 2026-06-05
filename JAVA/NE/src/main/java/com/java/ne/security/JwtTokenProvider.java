@@ -1,5 +1,9 @@
 package com.java.ne.security;
 
+
+/*
+ * Basic file note: this source file is part of the Utility Billing System backend.
+ */
 import com.java.ne.entity.AppUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

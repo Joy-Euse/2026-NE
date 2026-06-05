@@ -1,5 +1,10 @@
 package com.java.ne.service.impl;
 
+
+/*
+ * Basic file note: this source file is part of the Utility Billing System backend.
+ */
+import com.java.ne.dto.request.UserProfileUpdateRequest;
 import com.java.ne.dto.request.UserUpdateRequest;
 import com.java.ne.dto.response.UserResponse;
 import com.java.ne.enums.AccountStatus;
@@ -12,6 +17,7 @@ import com.java.ne.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     private final BillingMapper mapper;
 
     @Override
@@ -30,6 +37,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse getById(Long id) {
         return mapper.toUserResponse(userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found")));
+    }
+
+    @Override
+    public UserResponse getByEmail(String email) {
+        return mapper.toUserResponse(userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found")));
     }
 
     @Override
@@ -69,6 +81,44 @@ public class UserServiceImpl implements UserService {
     public UserResponse deactivate(Long id) {
         var user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found"));
         user.setStatus(AccountStatus.INACTIVE);
+        return mapper.toUserResponse(userRepository.save(user));
+    }
+
+    @Override
+    @Transactional
+    public UserResponse updateProfile(String email, UserProfileUpdateRequest request) {
+        var user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (request.email() != null && !request.email().equalsIgnoreCase(user.getEmail())) {
+            if (userRepository.existsByEmail(request.email())) {
+                throw new DuplicateResourceException("User email already exists");
+            }
+            user.setEmail(request.email());
+        }
+        if (request.fullName() != null) {
+            user.setFullName(request.fullName());
+        }
+        if (request.phoneNumber() != null) {
+            user.setPhoneNumber(request.phoneNumber());
+        }
+        if (request.password() != null && !request.password().isBlank()) {
+            user.setPassword(passwordEncoder.encode(request.password()));
+        }
+        if (user.getCustomer() != null) {
+            if (request.fullName() != null) {
+                user.getCustomer().setFullName(request.fullName());
+            }
+            if (request.email() != null) {
+                user.getCustomer().setEmail(request.email());
+            }
+            if (request.phoneNumber() != null) {
+                user.getCustomer().setPhoneNumber(request.phoneNumber());
+            }
+            if (request.address() != null) {
+                user.getCustomer().setAddress(request.address());
+            }
+        }
+
         return mapper.toUserResponse(userRepository.save(user));
     }
 

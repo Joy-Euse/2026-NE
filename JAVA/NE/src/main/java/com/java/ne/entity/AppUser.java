@@ -1,5 +1,9 @@
 package com.java.ne.entity;
 
+
+/*
+ * Basic file note: this source file is part of the Utility Billing System backend.
+ */
 import com.java.ne.enums.AccountStatus;
 import com.java.ne.enums.Role;
 import jakarta.persistence.Column;

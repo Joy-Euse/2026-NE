@@ -1,5 +1,9 @@
 package com.java.ne.exception;
 
+
+/*
+ * Basic file note: this source file is part of the Utility Billing System backend.
+ */
 import com.java.ne.dto.response.ApiErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;

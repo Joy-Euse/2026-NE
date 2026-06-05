@@ -1,5 +1,9 @@
 package com.java.ne.mapper;
 
+
+/*
+ * Basic file note: this source file is part of the Utility Billing System backend.
+ */
 import com.java.ne.dto.response.BillResponse;
 import com.java.ne.dto.response.CustomerResponse;
 import com.java.ne.dto.response.MeterReadingResponse;
@@ -25,7 +29,8 @@ public class BillingMapper {
 
     public UserResponse toUserResponse(AppUser user) {
         Long customerId = user.getCustomer() == null ? null : user.getCustomer().getId();
-        return new UserResponse(user.getId(), user.getFullName(), user.getEmail(), user.getPhoneNumber(), user.getStatus(), user.getRole(), customerId, user.getCreatedAt(), user.getUpdatedAt());
+        String address = user.getCustomer() == null ? null : user.getCustomer().getAddress();
+        return new UserResponse(user.getId(), user.getFullName(), user.getEmail(), user.getPhoneNumber(), user.getStatus(), user.getRole(), customerId, address, user.getCreatedAt(), user.getUpdatedAt());
     }
 
     public CustomerResponse toCustomerResponse(Customer customer) {

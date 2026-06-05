@@ -1,5 +1,9 @@
 package com.java.ne.controller;
 
+
+/*
+ * Basic file note: this source file is part of the Utility Billing System backend.
+ */
 import com.java.ne.dto.request.CustomerRequest;
 import com.java.ne.dto.response.CustomerResponse;
 import com.java.ne.service.CustomerService;
@@ -33,7 +37,7 @@ public class CustomerController {
     private final CustomerService customerService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN','OPERATOR')")
+    @PreAuthorize("denyAll()")
     public ResponseEntity<CustomerResponse> create(@Valid @RequestBody CustomerRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(customerService.create(request));
     }

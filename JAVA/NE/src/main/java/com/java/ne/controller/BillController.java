@@ -1,5 +1,9 @@
 package com.java.ne.controller;
 
+
+/*
+ * Basic file note: this source file is part of the Utility Billing System backend.
+ */
 import com.java.ne.dto.request.BillGenerationRequest;
 import com.java.ne.dto.response.BillResponse;
 import com.java.ne.entity.AppUser;

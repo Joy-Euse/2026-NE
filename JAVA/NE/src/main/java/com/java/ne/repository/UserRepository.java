@@ -1,5 +1,9 @@
 package com.java.ne.repository;
 
+
+/*
+ * Basic file note: this source file is part of the Utility Billing System backend.
+ */
 import com.java.ne.entity.AppUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 

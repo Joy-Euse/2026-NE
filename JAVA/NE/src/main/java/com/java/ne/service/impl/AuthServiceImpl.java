@@ -1,7 +1,12 @@
 package com.java.ne.service.impl;
 
+
+/*
+ * Basic file note: this source file is part of the Utility Billing System backend.
+ */
 import com.java.ne.dto.request.LoginRequest;
 import com.java.ne.dto.request.RegisterRequest;
+import com.java.ne.dto.response.ApiMessageResponse;
 import com.java.ne.dto.response.AuthResponse;
 import com.java.ne.dto.response.UserResponse;
 import com.java.ne.entity.AppUser;
@@ -9,9 +14,11 @@ import com.java.ne.entity.Customer;
 import com.java.ne.enums.AccountStatus;
 import com.java.ne.enums.Role;
 import com.java.ne.exception.DuplicateResourceException;
+import com.java.ne.exception.InvalidBusinessOperationException;
 import com.java.ne.mapper.BillingMapper;
 import com.java.ne.repository.CustomerRepository;
 import com.java.ne.repository.UserRepository;
+import com.java.ne.security.JwtBlacklistService;
 import com.java.ne.security.JwtTokenProvider;
 import com.java.ne.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +26,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Slf4j
 @Service
@@ -32,6 +42,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
+    private final JwtBlacklistService jwtBlacklistService;
     private final BillingMapper mapper;
 
     @Override
@@ -77,5 +88,17 @@ public class AuthServiceImpl implements AuthService {
         Long customerId = user.getCustomer() == null ? null : user.getCustomer().getId();
         log.info("User login successful for {}", user.getEmail());
         return new AuthResponse(token, "Bearer", user.getId(), user.getFullName(), user.getEmail(), user.getRole(), customerId);
+    }
+
+    @Override
+    public ApiMessageResponse logout(String authorizationHeader) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new InvalidBusinessOperationException("Authorization bearer token is required for logout");
+        }
+        String token = authorizationHeader.substring(7);
+        jwtBlacklistService.blacklist(token);
+        SecurityContextHolder.clearContext();
+        log.info("User logged out");
+        return new ApiMessageResponse("Logged out successfully", LocalDateTime.now());
     }
 }

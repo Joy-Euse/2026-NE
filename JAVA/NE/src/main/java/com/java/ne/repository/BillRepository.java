@@ -1,5 +1,9 @@
 package com.java.ne.repository;
 
+
+/*
+ * Basic file note: this source file is part of the Utility Billing System backend.
+ */
 import com.java.ne.entity.Bill;
 import com.java.ne.enums.BillStatus;
 import org.springframework.data.domain.Page;

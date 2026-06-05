@@ -1,5 +1,9 @@
 package com.java.ne.config;
 
+
+/*
+ * Basic file note: this source file is part of the Utility Billing System backend.
+ */
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;

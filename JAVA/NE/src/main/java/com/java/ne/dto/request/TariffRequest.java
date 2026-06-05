@@ -1,5 +1,9 @@
 package com.java.ne.dto.request;
 
+
+/*
+ * Basic file note: this source file is part of the Utility Billing System backend.
+ */
 import com.java.ne.enums.MeterType;
 import com.java.ne.enums.TariffType;
 import jakarta.validation.Valid;

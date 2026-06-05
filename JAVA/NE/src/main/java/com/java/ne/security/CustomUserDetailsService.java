@@ -1,5 +1,9 @@
 package com.java.ne.security;
 
+
+/*
+ * Basic file note: this source file is part of the Utility Billing System backend.
+ */
 import com.java.ne.enums.AccountStatus;
 import com.java.ne.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

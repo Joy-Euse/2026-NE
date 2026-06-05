@@ -1,5 +1,9 @@
 package com.java.ne.config;
 
+
+/*
+ * Basic file note: this source file is part of the Utility Billing System backend.
+ */
 import com.java.ne.security.CustomUserDetailsService;
 import com.java.ne.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;

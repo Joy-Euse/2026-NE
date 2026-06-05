@@ -1,5 +1,9 @@
 package com.java.ne.service;
 
+
+/*
+ * Basic file note: this source file is part of the Utility Billing System backend.
+ */
 import com.java.ne.dto.request.TariffRequest;
 import com.java.ne.dto.response.TariffResponse;
 import org.springframework.data.domain.Page;

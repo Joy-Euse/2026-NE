@@ -1,5 +1,9 @@
 package com.java.ne.service.impl;
 
+
+/*
+ * Basic file note: this source file is part of the Utility Billing System backend.
+ */
 import com.java.ne.dto.request.PaymentRequest;
 import com.java.ne.dto.response.PaymentResponse;
 import com.java.ne.entity.AppUser;
