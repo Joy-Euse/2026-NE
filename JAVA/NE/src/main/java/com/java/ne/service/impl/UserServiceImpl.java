@@ -8,10 +8,13 @@ import com.java.ne.dto.request.UserProfileUpdateRequest;
 import com.java.ne.dto.request.UserUpdateRequest;
 import com.java.ne.dto.response.UserResponse;
 import com.java.ne.enums.AccountStatus;
+import com.java.ne.enums.CustomerStatus;
+import com.java.ne.enums.MeterStatus;
 import com.java.ne.exception.DuplicateResourceException;
 import com.java.ne.exception.InvalidBusinessOperationException;
 import com.java.ne.exception.ResourceNotFoundException;
 import com.java.ne.mapper.BillingMapper;
+import com.java.ne.repository.MeterRepository;
 import com.java.ne.repository.UserRepository;
 import com.java.ne.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final MeterRepository meterRepository;
     private final PasswordEncoder passwordEncoder;
     private final BillingMapper mapper;
 
@@ -70,6 +74,9 @@ public class UserServiceImpl implements UserService {
 
         if (user.getCustomer() != null) {
             syncCustomerProfile(user, request);
+            if (request.status() == AccountStatus.INACTIVE) {
+                deactivateLinkedCustomerAndMeters(user);
+            }
         } else if (request.role() == com.java.ne.enums.Role.ROLE_CUSTOMER) {
             throw new InvalidBusinessOperationException("Cannot make this user ROLE_CUSTOMER because no customer profile is linked");
         }
@@ -78,9 +85,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserResponse deactivate(Long id) {
         var user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found"));
         user.setStatus(AccountStatus.INACTIVE);
+        deactivateLinkedCustomerAndMeters(user);
         return mapper.toUserResponse(userRepository.save(user));
     }
 
@@ -141,5 +150,15 @@ public class UserServiceImpl implements UserService {
                     ? com.java.ne.enums.CustomerStatus.ACTIVE
                     : com.java.ne.enums.CustomerStatus.INACTIVE);
         }
+    }
+
+    private void deactivateLinkedCustomerAndMeters(com.java.ne.entity.AppUser user) {
+        if (user.getCustomer() == null) {
+            return;
+        }
+
+        user.getCustomer().setStatus(CustomerStatus.INACTIVE);
+        meterRepository.findAllByCustomerId(user.getCustomer().getId())
+                .forEach(meter -> meter.setStatus(MeterStatus.INACTIVE));
     }
 }

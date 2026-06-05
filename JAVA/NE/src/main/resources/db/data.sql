@@ -4,18 +4,18 @@
 
 INSERT INTO customer (full_name, national_id, email, phone_number, address, status, created_at, updated_at, created_by, updated_by)
 VALUES
-    ('Alice Uwase', '1199880012345678', 'alice@example.com', '+250788100001', 'KG 5 Ave, Kigali', 'ACTIVE', NOW(), NOW(), 'system', 'system'),
-    ('Bob Niyonzima', '1198770023456789', 'bob@example.com', '+250788100002', 'KN 3 Rd, Kigali', 'ACTIVE', NOW(), NOW(), 'system', 'system'),
-    ('Claire Mutesi', '1200110034567890', 'claire@example.com', '+250788100003', 'KK 15 St, Kigali', 'ACTIVE', NOW(), NOW(), 'system', 'system'),
-    ('David Hakizimana', '1197660045678901', 'david@example.com', '+250788100004', 'Musanze, Northern Province', 'INACTIVE', NOW(), NOW(), 'system', 'system')
+    ('Alice Uwase', '1199880012345678', 'alice@example.com', '0788100001', 'KG 5 Ave, Kigali', 'ACTIVE', NOW(), NOW(), 'system', 'system'),
+    ('Bob Niyonzima', '1198770023456789', 'bob@example.com', '0788100002', 'KN 3 Rd, Kigali', 'ACTIVE', NOW(), NOW(), 'system', 'system'),
+    ('Claire Mutesi', '1200110034567890', 'claire@example.com', '0788100003', 'KK 15 St, Kigali', 'ACTIVE', NOW(), NOW(), 'system', 'system'),
+    ('David Hakizimana', '1197660045678901', 'david@example.com', '0788100004', 'Musanze, Northern Province', 'INACTIVE', NOW(), NOW(), 'system', 'system')
 ON CONFLICT (national_id) DO NOTHING;
 
 INSERT INTO app_users (full_name, email, phone_number, password, status, role, email_verified, customer_id, created_at, updated_at, created_by, updated_by)
 VALUES
-    ('System Admin', 'admin@utility.test', '+250780000001', '$2a$10$9KkkI8mU/yOVQ2fx07L1aOIo6CFXY3GxvM77oOOkS4RVKxRZGWxEi', 'ACTIVE', 'ROLE_ADMIN', TRUE, NULL, NOW(), NOW(), 'system', 'system'),
-    ('Meter Operator', 'operator@utility.test', '+250780000002', '$2a$10$9KkkI8mU/yOVQ2fx07L1aOIo6CFXY3GxvM77oOOkS4RVKxRZGWxEi', 'ACTIVE', 'ROLE_OPERATOR', TRUE, NULL, NOW(), NOW(), 'system', 'system'),
-    ('Finance Officer', 'finance@utility.test', '+250780000003', '$2a$10$9KkkI8mU/yOVQ2fx07L1aOIo6CFXY3GxvM77oOOkS4RVKxRZGWxEi', 'ACTIVE', 'ROLE_FINANCE', TRUE, NULL, NOW(), NOW(), 'system', 'system'),
-    ('Joy euse Admin', 'iradukundajoyeuse34@gmail.com', '+250780000009', '$2a$10$9KkkI8mU/yOVQ2fx07L1aOIo6CFXY3GxvM77oOOkS4RVKxRZGWxEi', 'ACTIVE', 'ROLE_ADMIN', TRUE, NULL, NOW(), NOW(), 'system', 'system')
+    ('System Admin', 'admin@utility.test', '0780000001', '$2a$10$9KkkI8mU/yOVQ2fx07L1aOIo6CFXY3GxvM77oOOkS4RVKxRZGWxEi', 'ACTIVE', 'ROLE_ADMIN', TRUE, NULL, NOW(), NOW(), 'system', 'system'),
+    ('Meter Operator', 'operator@utility.test', '0780000002', '$2a$10$9KkkI8mU/yOVQ2fx07L1aOIo6CFXY3GxvM77oOOkS4RVKxRZGWxEi', 'ACTIVE', 'ROLE_OPERATOR', TRUE, NULL, NOW(), NOW(), 'system', 'system'),
+    ('Finance Officer', 'finance@utility.test', '0780000003', '$2a$10$9KkkI8mU/yOVQ2fx07L1aOIo6CFXY3GxvM77oOOkS4RVKxRZGWxEi', 'ACTIVE', 'ROLE_FINANCE', TRUE, NULL, NOW(), NOW(), 'system', 'system'),
+    ('Joy euse Admin', 'iradukundajoyeuse34@gmail.com', '0780000009', '$2a$10$9KkkI8mU/yOVQ2fx07L1aOIo6CFXY3GxvM77oOOkS4RVKxRZGWxEi', 'ACTIVE', 'ROLE_ADMIN', TRUE, NULL, NOW(), NOW(), 'system', 'system')
 ON CONFLICT (email) DO UPDATE
 SET password = EXCLUDED.password,
     status = EXCLUDED.status,
@@ -26,9 +26,9 @@ SET password = EXCLUDED.password,
 
 INSERT INTO app_users (full_name, email, phone_number, password, status, role, email_verified, customer_id, created_at, updated_at, created_by, updated_by)
 VALUES
-    ('Alice Uwase', 'alice.login@utility.test', '+250788100001', '$2a$10$9KkkI8mU/yOVQ2fx07L1aOIo6CFXY3GxvM77oOOkS4RVKxRZGWxEi', 'ACTIVE', 'ROLE_CUSTOMER', TRUE, (SELECT id FROM customer WHERE national_id = '1199880012345678'), NOW(), NOW(), 'system', 'system'),
-    ('Bob Niyonzima', 'bob.login@utility.test', '+250788100002', '$2a$10$9KkkI8mU/yOVQ2fx07L1aOIo6CFXY3GxvM77oOOkS4RVKxRZGWxEi', 'ACTIVE', 'ROLE_CUSTOMER', TRUE, (SELECT id FROM customer WHERE national_id = '1198770023456789'), NOW(), NOW(), 'system', 'system'),
-    ('Claire Mutesi', 'claire.login@utility.test', '+250788100003', '$2a$10$9KkkI8mU/yOVQ2fx07L1aOIo6CFXY3GxvM77oOOkS4RVKxRZGWxEi', 'ACTIVE', 'ROLE_CUSTOMER', TRUE, (SELECT id FROM customer WHERE national_id = '1200110034567890'), NOW(), NOW(), 'system', 'system')
+    ('Alice Uwase', 'alice.login@utility.test', '0788100001', '$2a$10$9KkkI8mU/yOVQ2fx07L1aOIo6CFXY3GxvM77oOOkS4RVKxRZGWxEi', 'ACTIVE', 'ROLE_CUSTOMER', TRUE, (SELECT id FROM customer WHERE national_id = '1199880012345678'), NOW(), NOW(), 'system', 'system'),
+    ('Bob Niyonzima', 'bob.login@utility.test', '0788100002', '$2a$10$9KkkI8mU/yOVQ2fx07L1aOIo6CFXY3GxvM77oOOkS4RVKxRZGWxEi', 'ACTIVE', 'ROLE_CUSTOMER', TRUE, (SELECT id FROM customer WHERE national_id = '1198770023456789'), NOW(), NOW(), 'system', 'system'),
+    ('Claire Mutesi', 'claire.login@utility.test', '0788100003', '$2a$10$9KkkI8mU/yOVQ2fx07L1aOIo6CFXY3GxvM77oOOkS4RVKxRZGWxEi', 'ACTIVE', 'ROLE_CUSTOMER', TRUE, (SELECT id FROM customer WHERE national_id = '1200110034567890'), NOW(), NOW(), 'system', 'system')
 ON CONFLICT (email) DO UPDATE
 SET customer_id = EXCLUDED.customer_id,
     status = EXCLUDED.status,
