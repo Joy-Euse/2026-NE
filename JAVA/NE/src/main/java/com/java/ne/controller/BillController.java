@@ -10,7 +10,12 @@ import com.java.ne.entity.AppUser;
 import com.java.ne.exception.InvalidBusinessOperationException;
 import com.java.ne.repository.UserRepository;
 import com.java.ne.service.BillService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +37,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/bills")
 @RequiredArgsConstructor
+@Tag(name = "Bills", description = "Bill generation, approval, lookup, and customer bill history endpoints.")
+@Validated
 public class BillController {
 
     private final BillService billService;
@@ -38,24 +46,28 @@ public class BillController {
 
     @PostMapping("/generate")
     @PreAuthorize("hasAnyRole('ADMIN','FINANCE')")
+    @Operation(summary = "Generate bill", description = "Generates a bill from meter reading data. Authorized: ADMIN and FINANCE.")
     public ResponseEntity<BillResponse> generate(@Valid @RequestBody BillGenerationRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(billService.generate(request));
     }
 
     @PatchMapping("/{id}/approve")
     @PreAuthorize("hasAnyRole('ADMIN','FINANCE')")
-    public ResponseEntity<BillResponse> approve(@PathVariable Long id) {
+    @Operation(summary = "Approve bill", description = "Approves a generated bill so it can be paid. Authorized: ADMIN and FINANCE.")
+    public ResponseEntity<BillResponse> approve(@PathVariable @Positive Long id) {
         return ResponseEntity.ok(billService.approve(id));
     }
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','FINANCE')")
+    @Operation(summary = "List bills", description = "Returns all bills with pagination. Authorized: ADMIN and FINANCE.")
     public ResponseEntity<Page<BillResponse>> getAll(Pageable pageable) {
         return ResponseEntity.ok(billService.getAll(pageable));
     }
 
     @GetMapping("/reference/{reference}")
     @PreAuthorize("hasAnyRole('ADMIN','FINANCE','CUSTOMER')")
+    @Operation(summary = "Get bill by reference", description = "Returns a bill by reference. Authorized: ADMIN, FINANCE, and CUSTOMER; customers can only view their own bills.")
     public ResponseEntity<BillResponse> getByReference(@PathVariable String reference,
                                                         @AuthenticationPrincipal UserDetails userDetails) {
         BillResponse bill = billService.getByReference(reference);
@@ -65,7 +77,8 @@ public class BillController {
 
     @GetMapping("/customer/{customerId}")
     @PreAuthorize("hasAnyRole('ADMIN','FINANCE','CUSTOMER')")
-    public ResponseEntity<Page<BillResponse>> getByCustomer(@PathVariable Long customerId,
+    @Operation(summary = "List customer bills", description = "Returns bills for a customer. Authorized: ADMIN, FINANCE, and CUSTOMER; customers can only view their own bills.")
+    public ResponseEntity<Page<BillResponse>> getByCustomer(@PathVariable @Positive Long customerId,
                                                              @AuthenticationPrincipal UserDetails userDetails,
                                                              Pageable pageable) {
         assertCustomerOwns(userDetails, customerId);
@@ -74,12 +87,14 @@ public class BillController {
 
     @GetMapping("/period")
     @PreAuthorize("hasAnyRole('ADMIN','FINANCE')")
-    public ResponseEntity<Page<BillResponse>> getByPeriod(@RequestParam Integer month, @RequestParam Integer year, Pageable pageable) {
+    @Operation(summary = "List bills by period", description = "Returns bills for a billing month and year. Authorized: ADMIN and FINANCE.")
+    public ResponseEntity<Page<BillResponse>> getByPeriod(@RequestParam @Min(1) @Max(12) Integer month, @RequestParam @Min(2000) Integer year, Pageable pageable) {
         return ResponseEntity.ok(billService.getByMonthAndYear(month, year, pageable));
     }
 
     @GetMapping("/unpaid")
     @PreAuthorize("hasAnyRole('ADMIN','FINANCE')")
+    @Operation(summary = "List unpaid bills", description = "Returns approved, partially paid, or overdue bills that still have balances. Authorized: ADMIN and FINANCE.")
     public ResponseEntity<Page<BillResponse>> getUnpaid(Pageable pageable) {
         return ResponseEntity.ok(billService.getUnpaid(pageable));
     }

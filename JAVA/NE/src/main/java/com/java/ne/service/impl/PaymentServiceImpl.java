@@ -10,6 +10,7 @@ import com.java.ne.entity.AppUser;
 import com.java.ne.entity.Bill;
 import com.java.ne.entity.Payment;
 import com.java.ne.enums.BillStatus;
+import com.java.ne.enums.Role;
 import com.java.ne.exception.InvalidBusinessOperationException;
 import com.java.ne.exception.ResourceNotFoundException;
 import com.java.ne.mapper.BillingMapper;
@@ -44,13 +45,14 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional
     public PaymentResponse record(PaymentRequest request) {
         Bill bill = billRepository.findById(request.billId()).orElseThrow(() -> new ResourceNotFoundException("Bill not found"));
+        AppUser recorder = currentUser();
+        assertCustomerOwnsBill(recorder, bill);
         if (bill.getStatus() != BillStatus.APPROVED && bill.getStatus() != BillStatus.PARTIALLY_PAID && bill.getStatus() != BillStatus.OVERDUE) {
             throw new InvalidBusinessOperationException("Bill cannot be paid before approval");
         }
         if (request.amountPaid().compareTo(bill.getOutstandingBalance()) > 0) {
             throw new InvalidBusinessOperationException("Payment amount cannot exceed outstanding balance");
         }
-        AppUser recorder = currentUser();
         Payment payment = Payment.builder()
                 .paymentReference("PAY-" + System.currentTimeMillis() + "-" + bill.getId())
                 .bill(bill)
@@ -92,5 +94,17 @@ public class PaymentServiceImpl implements PaymentService {
     private AppUser currentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("Authenticated user not found"));
+    }
+
+    private void assertCustomerOwnsBill(AppUser recorder, Bill bill) {
+        if (recorder.getRole() != Role.ROLE_CUSTOMER) {
+            return;
+        }
+        if (recorder.getCustomer() == null) {
+            throw new InvalidBusinessOperationException("This account is not linked to a customer profile");
+        }
+        if (!recorder.getCustomer().getId().equals(bill.getCustomer().getId())) {
+            throw new InvalidBusinessOperationException("Access denied: you can only pay your own bills");
+        }
     }
 }

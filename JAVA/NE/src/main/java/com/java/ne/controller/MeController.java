@@ -14,6 +14,8 @@ import com.java.ne.repository.UserRepository;
 import com.java.ne.service.BillService;
 import com.java.ne.service.PaymentService;
 import com.java.ne.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/me")
 @RequiredArgsConstructor
+@Tag(name = "My Account", description = "Self-service endpoints for the authenticated user's profile, bills, and payments.")
 public class MeController {
 
     private final UserRepository userRepository;
@@ -39,11 +42,13 @@ public class MeController {
     private final PaymentService paymentService;
 
     @GetMapping("/profile")
+    @Operation(summary = "Get my profile", description = "Returns the authenticated user's profile. Authorized: authenticated users.")
     public ResponseEntity<UserResponse> myProfile(@AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(userService.getByEmail(userDetails.getUsername()));
     }
 
     @PutMapping("/profile")
+    @Operation(summary = "Update my profile", description = "Updates the authenticated user's own profile. Authorized: authenticated users.")
     public ResponseEntity<UserResponse> updateMyProfile(@AuthenticationPrincipal UserDetails userDetails,
                                                         @Valid @RequestBody UserProfileUpdateRequest request) {
         return ResponseEntity.ok(userService.updateProfile(userDetails.getUsername(), request));
@@ -54,6 +59,7 @@ public class MeController {
      */
     @GetMapping("/bills")
     @PreAuthorize("hasRole('CUSTOMER')")
+    @Operation(summary = "List my bills", description = "Returns bills for the authenticated customer account. Authorized: CUSTOMER only.")
     public ResponseEntity<Page<BillResponse>> myBills(@AuthenticationPrincipal UserDetails userDetails, Pageable pageable) {
         Long customerId = resolveCustomerId(userDetails);
         return ResponseEntity.ok(billService.getByCustomer(customerId, pageable));
@@ -64,6 +70,7 @@ public class MeController {
      */
     @GetMapping("/payments")
     @PreAuthorize("hasRole('CUSTOMER')")
+    @Operation(summary = "List my payments", description = "Returns payment history for the authenticated customer account. Authorized: CUSTOMER only.")
     public ResponseEntity<Page<PaymentResponse>> myPayments(@AuthenticationPrincipal UserDetails userDetails, Pageable pageable) {
         Long customerId = resolveCustomerId(userDetails);
         return ResponseEntity.ok(paymentService.getByCustomer(customerId, pageable));

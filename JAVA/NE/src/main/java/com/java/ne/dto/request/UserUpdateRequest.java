@@ -8,13 +8,14 @@ import com.java.ne.enums.AccountStatus;
 import com.java.ne.enums.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 public record UserUpdateRequest(
-        String fullName,
-        @Email String email,
+        @Size(max = 120) String fullName,
+        @Email @Size(max = 120) String email,
         @Pattern(regexp = "^07[2389][0-9]{7}$", message = "Phone number must be 10 digits and start with 072, 073, 078, or 079") String phoneNumber,
         AccountStatus status,
         Role role,
-        String address
+        @Size(max = 255) String address
 ) {
 }

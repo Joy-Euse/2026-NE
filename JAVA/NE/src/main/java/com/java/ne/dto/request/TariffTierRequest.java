@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 
 public record TariffTierRequest(
         @NotNull @PositiveOrZero BigDecimal minUnit,
-        @Positive BigDecimal maxUnit,
+        @PositiveOrZero BigDecimal maxUnit,
         @NotNull @Positive BigDecimal ratePerUnit
 ) {
 }

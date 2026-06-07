@@ -12,10 +12,9 @@ ON CONFLICT (national_id) DO NOTHING;
 
 INSERT INTO app_users (full_name, email, phone_number, password, status, role, email_verified, customer_id, created_at, updated_at, created_by, updated_by)
 VALUES
-    ('System Admin', 'admin@utility.test', '0780000001', '$2a$10$9KkkI8mU/yOVQ2fx07L1aOIo6CFXY3GxvM77oOOkS4RVKxRZGWxEi', 'ACTIVE', 'ROLE_ADMIN', TRUE, NULL, NOW(), NOW(), 'system', 'system'),
-    ('Meter Operator', 'operator@utility.test', '0780000002', '$2a$10$9KkkI8mU/yOVQ2fx07L1aOIo6CFXY3GxvM77oOOkS4RVKxRZGWxEi', 'ACTIVE', 'ROLE_OPERATOR', TRUE, NULL, NOW(), NOW(), 'system', 'system'),
-    ('Finance Officer', 'finance@utility.test', '0780000003', '$2a$10$9KkkI8mU/yOVQ2fx07L1aOIo6CFXY3GxvM77oOOkS4RVKxRZGWxEi', 'ACTIVE', 'ROLE_FINANCE', TRUE, NULL, NOW(), NOW(), 'system', 'system'),
-    ('Joy euse Admin', 'iradukundajoyeuse34@gmail.com', '0780000009', '$2a$10$9KkkI8mU/yOVQ2fx07L1aOIo6CFXY3GxvM77oOOkS4RVKxRZGWxEi', 'ACTIVE', 'ROLE_ADMIN', TRUE, NULL, NOW(), NOW(), 'system', 'system')
+    ('System Admin', 'admin@utility.test', '0780000001', '$2a$12$YYqo18V.1idOFIbCaQzW4uTjCGlH.2tJ3uwwv3TAaUOPQem3jXP3G', 'ACTIVE', 'ROLE_ADMIN', TRUE, NULL, NOW(), NOW(), 'system', 'system'),
+    ('Meter Operator', 'operator@utility.test', '0780000002', '$2a$12$YYqo18V.1idOFIbCaQzW4uTjCGlH.2tJ3uwwv3TAaUOPQem3jXP3G', 'ACTIVE', 'ROLE_OPERATOR', TRUE, NULL, NOW(), NOW(), 'system', 'system'),
+    ('Finance Officer', 'finance@utility.test', '0780000003', '$2a$12$YYqo18V.1idOFIbCaQzW4uTjCGlH.2tJ3uwwv3TAaUOPQem3jXP3G', 'ACTIVE', 'ROLE_FINANCE', TRUE, NULL, NOW(), NOW(), 'system', 'system')
 ON CONFLICT (email) DO UPDATE
 SET password = EXCLUDED.password,
     status = EXCLUDED.status,

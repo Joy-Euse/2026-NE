@@ -11,7 +11,7 @@ import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 
 public record PaymentRequest(
-        @NotNull Long billId,
+        @NotNull @Positive Long billId,
         @NotNull @Positive BigDecimal amountPaid,
         @NotNull PaymentMethod paymentMethod
 ) {
