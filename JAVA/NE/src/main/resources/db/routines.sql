@@ -1,6 +1,6 @@
 -- PostgreSQL routine requirement:
--- This trigger automatically creates a notification when a bill row is inserted.
--- Run this file manually in PostgreSQL, or wire it into your preferred migration tool.
+-- This trigger creates the bill-generation notification row when a bill is inserted.
+-- The Spring notification scheduler sends PENDING notification emails afterward.
 
 CREATE OR REPLACE FUNCTION create_bill_generation_notification()
 RETURNS TRIGGER AS $$

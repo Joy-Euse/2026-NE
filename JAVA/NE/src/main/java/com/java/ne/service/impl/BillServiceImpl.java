@@ -24,7 +24,6 @@ import com.java.ne.repository.MeterReadingRepository;
 import com.java.ne.repository.TariffRepository;
 import com.java.ne.repository.UserRepository;
 import com.java.ne.service.BillService;
-import com.java.ne.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -50,7 +49,6 @@ public class BillServiceImpl implements BillService {
     private final MeterReadingRepository meterReadingRepository;
     private final TariffRepository tariffRepository;
     private final UserRepository userRepository;
-    private final NotificationService notificationService;
     private final BillingMapper mapper;
 
     @Override
@@ -93,7 +91,6 @@ public class BillServiceImpl implements BillService {
                 .dueDate(cycleDate.plusMonths(1).plusDays(14))
                 .build();
         Bill saved = billRepository.save(bill);
-        notificationService.createBillGeneratedNotification(saved.getCustomer(), saved);
         log.info("Generated bill {}", saved.getBillReference());
         return mapper.toBillResponse(saved);
     }

@@ -14,8 +14,6 @@ import org.springframework.data.domain.Pageable;
  * Coordinates notification records and email delivery.
  */
 public interface NotificationService {
-    void createBillGeneratedNotification(Customer customer, Bill bill);
-
     void createFullPaymentNotification(Customer customer, Bill bill);
 
     Page<NotificationResponse> getAll(Pageable pageable);

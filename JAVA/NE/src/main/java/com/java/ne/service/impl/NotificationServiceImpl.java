@@ -43,13 +43,6 @@ public class NotificationServiceImpl implements NotificationService {
     private String fromAddress;
 
     @Override
-    public void createBillGeneratedNotification(Customer customer, Bill bill) {
-        String message = "Dear %s,\nYour %02d/%d utility bill of %s FRW has been successfully processed."
-                .formatted(customer.getFullName(), bill.getBillingMonth(), bill.getBillingYear(), bill.getTotalAmount());
-        create(customer, bill, message);
-    }
-
-    @Override
     public void createFullPaymentNotification(Customer customer, Bill bill) {
         String message = "Dear %s,\nYour utility bill %s has been fully paid. Thank you."
                 .formatted(customer.getFullName(), bill.getBillReference());
