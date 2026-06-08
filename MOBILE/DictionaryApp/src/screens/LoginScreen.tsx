@@ -46,7 +46,7 @@ export function LoginScreen() {
           </Text>
           <Text className="text-[34px] font-black text-text">Your words are waiting.</Text>
           <Text className="text-base leading-6 text-secondary">
-            Log in with your class account and pick up your vocabulary journey right where you left
+            Log in with your account and pick up your vocabulary journey right where you left
             it.
           </Text>
         </View>
@@ -82,10 +82,6 @@ export function LoginScreen() {
             </Text>
           </Pressable>
         </View>
-
-        <Text className="text-center text-[15px] text-secondary">
-          Local demo access only. Use your assigned LexiTech account to continue.
-        </Text>
       </View>
     </SafeAreaView>
   );

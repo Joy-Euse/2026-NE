@@ -2,9 +2,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import { AppColors } from '@/constants/appColors';
+import { SearchHistoryItem } from '@/storage/historyStorage';
 
 type HistoryListProps = {
-  history: string[];
+  history: SearchHistoryItem[];
   onOpenHistory: () => void;
   onSelectWord: (word: string) => void;
 };
@@ -30,13 +31,13 @@ export function HistoryList({ history, onOpenHistory, onSelectWord }: HistoryLis
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerClassName="flex-row gap-2 pr-2">
-        {history.map((word) => (
+        {history.map((item) => (
           <Pressable
             accessibilityRole="button"
             className="rounded-lg border border-gray-200 bg-card px-3 py-2 active:bg-indigo-50"
-            key={word}
-            onPress={() => onSelectWord(word)}>
-            <Text className="text-sm font-bold text-primary">{word}</Text>
+            key={item.id}
+            onPress={() => onSelectWord(item.word)}>
+            <Text className="text-sm font-bold text-primary">{item.word}</Text>
           </Pressable>
         ))}
       </ScrollView>

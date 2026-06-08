@@ -6,11 +6,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppColors } from '@/constants/appColors';
 import { useAuth } from '@/context/AuthContext';
-import { clearSearchHistory, getSearchHistory } from '@/storage/historyStorage';
+import {
+  clearSearchHistory,
+  getSearchHistory,
+  SearchHistoryItem,
+} from '@/storage/historyStorage';
 
 export function HistoryScreen() {
   const { currentUser } = useAuth();
-  const [history, setHistory] = useState<string[]>([]);
+  const [history, setHistory] = useState<SearchHistoryItem[]>([]);
 
   const loadHistory = useCallback(() => {
     if (!currentUser) {
@@ -25,6 +29,18 @@ export function HistoryScreen() {
 
   const handleSelectWord = (word: string) => {
     router.replace({ pathname: '/', params: { word } } as never);
+  };
+
+  const getStatusLabel = (item: SearchHistoryItem) => {
+    if (item.status === 'not_found') {
+      return 'Not found';
+    }
+
+    if (item.status === 'error') {
+      return 'Failed';
+    }
+
+    return '';
   };
 
   const handleClearHistory = async () => {
@@ -68,16 +84,30 @@ export function HistoryScreen() {
                 <Text className="font-black text-red-700">Clear history</Text>
               </Pressable>
 
-              {history.map((word) => (
+              {history.map((item) => (
                 <Pressable
                   accessibilityRole="button"
                   className="min-h-[58px] flex-row items-center gap-3 rounded-lg bg-card px-4 shadow-sm active:opacity-75"
-                  key={word}
-                  onPress={() => handleSelectWord(word)}>
-                  <Ionicons color={AppColors.primary} name="book-outline" size={20} />
-                  <Text className="flex-1 text-[17px] font-extrabold capitalize text-text">
-                    {word}
-                  </Text>
+                  key={item.id}
+                  onPress={() => handleSelectWord(item.word)}>
+                  <Ionicons
+                    color={item.status === 'success' ? AppColors.primary : AppColors.textSecondary}
+                    name={item.status === 'success' ? 'book-outline' : 'alert-circle-outline'}
+                    size={20}
+                  />
+                  <View className="flex-1">
+                    <Text className="text-[17px] font-extrabold capitalize text-text">
+                      {item.word}
+                    </Text>
+                    {getStatusLabel(item) ? (
+                      <Text
+                        className={`text-xs font-black ${
+                          item.status === 'not_found' ? 'text-amber-700' : 'text-red-700'
+                        }`}>
+                        {getStatusLabel(item)}
+                      </Text>
+                    ) : null}
+                  </View>
                   <Ionicons color={AppColors.textSecondary} name="chevron-forward" size={18} />
                 </Pressable>
               ))}
