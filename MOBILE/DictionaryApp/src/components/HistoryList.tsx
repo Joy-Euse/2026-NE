@@ -1,19 +1,33 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 type HistoryListProps = {
   history: string[];
+  onOpenHistory: () => void;
   onSelectWord: (word: string) => void;
 };
 
-export function HistoryList({ history, onSelectWord }: HistoryListProps) {
+export function HistoryList({ history, onOpenHistory, onSelectWord }: HistoryListProps) {
   if (history.length === 0) {
     return null;
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Recent searches</Text>
-      <View style={styles.items}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Recent searches</Text>
+        <Pressable
+          accessibilityLabel="Open full search history"
+          accessibilityRole="button"
+          onPress={onOpenHistory}
+          style={({ pressed }) => [styles.iconButton, pressed && styles.itemPressed]}>
+          <Ionicons color="#2457d6" name="time-outline" size={20} />
+        </Pressable>
+      </View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.items}>
         {history.map((word) => (
           <Pressable
             accessibilityRole="button"
@@ -23,7 +37,7 @@ export function HistoryList({ history, onSelectWord }: HistoryListProps) {
             <Text style={styles.itemText}>{word}</Text>
           </Pressable>
         ))}
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -32,15 +46,29 @@ const styles = StyleSheet.create({
   container: {
     gap: 10,
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
   title: {
     color: '#4f5f76',
     fontSize: 14,
     fontWeight: '700',
   },
+  iconButton: {
+    width: 38,
+    height: 38,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 8,
+    backgroundColor: '#eef4ff',
+  },
   items: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: 8,
+    paddingRight: 8,
   },
   item: {
     borderRadius: 8,

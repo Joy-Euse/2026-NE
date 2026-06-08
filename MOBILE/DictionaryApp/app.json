@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "DictionaryApp",
-    "slug": "DictionaryApp",
+    "name": "LexiTech Dictionary",
+    "slug": "LexiTechDictionary",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",

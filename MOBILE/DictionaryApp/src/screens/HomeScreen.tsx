@@ -1,5 +1,6 @@
 import { isAxiosError } from 'axios';
-import { useEffect, useState } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -9,6 +10,7 @@ import { HistoryList } from '@/components/HistoryList';
 import { LoadingIndicator } from '@/components/LoadingIndicator';
 import { SearchBar } from '@/components/SearchBar';
 import { WordDetails } from '@/components/WordDetails';
+import { useAuth } from '@/context/AuthContext';
 import { getSearchHistory, saveSearchWord } from '@/storage/historyStorage';
 import { DictionaryEntry } from '@/types/dictionary';
 
@@ -16,6 +18,8 @@ const EMPTY_STATE =
   'Search for any English word to see definitions, parts of speech, examples, and pronunciation.';
 
 export default function HomeScreen() {
+  const { currentUser } = useAuth();
+  const params = useLocalSearchParams<{ word?: string }>();
   const [searchTerm, setSearchTerm] = useState('');
   const [lastSubmittedWord, setLastSubmittedWord] = useState('');
   const [wordEntries, setWordEntries] = useState<DictionaryEntry[]>([]);
@@ -24,12 +28,13 @@ export default function HomeScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
-  useEffect(() => {
-    getSearchHistory().then(setHistory);
-  }, []);
-
-  const searchWord = async (wordToSearch = searchTerm) => {
+  const searchWord = useCallback(async (wordToSearch = searchTerm) => {
     const trimmedWord = wordToSearch.trim();
+
+    if (!currentUser) {
+      setErrorMessage('Please log in before searching.');
+      return;
+    }
 
     if (!trimmedWord) {
       setErrorMessage('Please enter a word before searching.');
@@ -46,7 +51,8 @@ export default function HomeScreen() {
       const entries = await fetchWord(trimmedWord);
       setWordEntries(entries);
       setSearchTerm(trimmedWord);
-      setHistory(await saveSearchWord(trimmedWord));
+      const nextHistory = await saveSearchWord(currentUser.id, trimmedWord);
+      setHistory(nextHistory.slice(0, 8));
     } catch (error) {
       setWordEntries([]);
       if (isAxiosError(error) && error.response?.status === 404) {
@@ -59,7 +65,27 @@ export default function HomeScreen() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentUser, searchTerm]);
+
+  useEffect(() => {
+    if (!currentUser) {
+      return;
+    }
+
+    getSearchHistory(currentUser.id).then((items) => setHistory(items.slice(0, 8)));
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (params.word && params.word !== lastSubmittedWord) {
+      const timer = setTimeout(() => {
+        searchWord(params.word);
+      }, 0);
+
+      return () => clearTimeout(timer);
+    }
+
+    return undefined;
+  }, [lastSubmittedWord, params.word, searchWord]);
 
   const retrySearch = () => {
     searchWord(lastSubmittedWord || searchTerm);
@@ -75,7 +101,7 @@ export default function HomeScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
-            <Text style={styles.eyebrow}>Pocket dictionary</Text>
+            <Text style={styles.eyebrow}>LexiTech Dictionary</Text>
             <Text style={styles.title}>Find precise meanings fast.</Text>
             <Text style={styles.subtitle}>
               Search definitions, examples, phonetics, and pronunciation in one calm reading view.
@@ -89,7 +115,11 @@ export default function HomeScreen() {
               onSubmit={() => searchWord()}
               value={searchTerm}
             />
-            <HistoryList history={history} onSelectWord={searchWord} />
+            <HistoryList
+              history={history}
+              onOpenHistory={() => router.navigate('/history')}
+              onSelectWord={searchWord}
+            />
           </View>
 
           {isLoading ? <LoadingIndicator /> : null}

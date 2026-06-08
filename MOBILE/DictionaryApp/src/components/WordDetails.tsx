@@ -1,4 +1,6 @@
-import { useAudioPlayer } from 'expo-audio';
+import { Ionicons } from '@expo/vector-icons';
+import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
+import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { DictionaryEntry } from '@/types/dictionary';
@@ -13,13 +15,51 @@ export function WordDetails({ entries }: WordDetailsProps) {
   const audioUrl = getFirstAudioUrl(entries);
   const phonetic = getDisplayPhonetic(firstEntry);
   const player = useAudioPlayer(audioUrl);
+  const status = useAudioPlayerStatus(player);
+  const [manualAudioError, setManualAudioError] = useState<{ message: string; url: string | null }>({
+    message: '',
+    url: null,
+  });
 
-  const playPronunciation = () => {
+  const isAudioLoading = !!audioUrl && status.isBuffering;
+  const isAudioPlaying = !!audioUrl && status.playing;
+  const isAudioActive = isAudioPlaying || status.currentTime > 0;
+  const audioError =
+    (status.error ? 'Pronunciation audio is unavailable right now.' : '') ||
+    (manualAudioError.url === audioUrl ? manualAudioError.message : '');
+
+  useEffect(() => {
+    if (status.didJustFinish) {
+      player.seekTo(0).catch(() => undefined);
+    }
+  }, [player, status.didJustFinish]);
+
+  const togglePronunciation = () => {
     try {
-      player.seekTo(0);
+      setManualAudioError({ message: '', url: audioUrl });
+      if (isAudioPlaying) {
+        player.pause();
+        return;
+      }
+
       player.play();
     } catch {
-      // Playback failures should not interrupt dictionary reading.
+      setManualAudioError({
+        message: 'Pronunciation audio is unavailable right now.',
+        url: audioUrl,
+      });
+    }
+  };
+
+  const stopPronunciation = async () => {
+    try {
+      player.pause();
+      await player.seekTo(0);
+    } catch {
+      setManualAudioError({
+        message: 'Pronunciation audio is unavailable right now.',
+        url: audioUrl,
+      });
     }
   };
 
@@ -36,15 +76,37 @@ export function WordDetails({ entries }: WordDetailsProps) {
         </View>
 
         {audioUrl ? (
-          <Pressable
-            accessibilityLabel="Play pronunciation"
-            accessibilityRole="button"
-            onPress={playPronunciation}
-            style={({ pressed }) => [styles.audioButton, pressed && styles.audioButtonPressed]}>
-            <Text style={styles.audioIcon}>Play</Text>
-          </Pressable>
+          <View style={styles.audioControls}>
+            <Pressable
+              accessibilityLabel={isAudioPlaying ? 'Pause pronunciation' : 'Play pronunciation'}
+              accessibilityRole="button"
+              disabled={isAudioLoading}
+              onPress={togglePronunciation}
+              style={({ pressed }) => [
+                styles.audioButton,
+                (pressed || isAudioLoading) && styles.audioButtonPressed,
+              ]}>
+              <Ionicons
+                color="#2457d6"
+                name={isAudioPlaying ? 'pause' : isAudioLoading ? 'hourglass-outline' : 'volume-high'}
+                size={22}
+              />
+            </Pressable>
+
+            {isAudioActive ? (
+              <Pressable
+                accessibilityLabel="Stop pronunciation"
+                accessibilityRole="button"
+                onPress={stopPronunciation}
+                style={({ pressed }) => [styles.stopButton, pressed && styles.audioButtonPressed]}>
+                <Ionicons color="#9f1d12" name="stop" size={18} />
+              </Pressable>
+            ) : null}
+          </View>
         ) : null}
       </View>
+
+      {audioError ? <Text style={styles.audioError}>{audioError}</Text> : null}
 
       {entries.map((entry, entryIndex) =>
         (entry.meanings ?? []).map((meaning, meaningIndex) => (
@@ -100,8 +162,13 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '700',
   },
+  audioControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   audioButton: {
-    width: 58,
+    width: 46,
     height: 42,
     borderRadius: 8,
     backgroundColor: '#ecf4ff',
@@ -111,10 +178,18 @@ const styles = StyleSheet.create({
   audioButtonPressed: {
     opacity: 0.7,
   },
-  audioIcon: {
-    color: '#2457d6',
-    fontSize: 13,
-    fontWeight: '900',
+  stopButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    backgroundColor: '#fff4f2',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  audioError: {
+    color: '#9f1d12',
+    fontSize: 14,
+    fontWeight: '700',
   },
   meaning: {
     gap: 12,

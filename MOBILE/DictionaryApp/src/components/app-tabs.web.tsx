@@ -19,8 +19,8 @@ export default function AppTabs() {
       <TabSlot style={{ height: '100%' }} />
       <TabList asChild>
         <CustomTabList>
-          <TabTrigger name="dictionary" href="/" asChild>
-            <TabButton>Dictionary</TabButton>
+          <TabTrigger name="dictionary" href={'/' as never} asChild>
+            <TabButton>LexiTech Dictionary</TabButton>
           </TabTrigger>
         </CustomTabList>
       </TabList>
@@ -50,7 +50,7 @@ export function CustomTabList(props: TabListProps) {
     <View {...props} style={styles.tabListContainer}>
       <ThemedView type="backgroundElement" style={styles.innerContainer}>
         <ThemedText type="smallBold" style={[styles.brandText, { color: colors.text }]}>
-          Dictionary
+          LexiTech Dictionary
         </ThemedText>
 
         {props.children}
