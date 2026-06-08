@@ -1,11 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Drawer } from 'expo-router/drawer';
 
+import { AppDrawerContent } from '@/components/AppDrawerContent';
 import { AppColors } from '@/constants/appColors';
 
 export default function AppDrawerLayout() {
   return (
     <Drawer
+      drawerContent={(props) => <AppDrawerContent {...props} />}
       screenOptions={{
         drawerActiveTintColor: AppColors.primary,
         drawerInactiveTintColor: AppColors.textSecondary,
