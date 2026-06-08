@@ -9,9 +9,11 @@ export default function AppDrawerLayout() {
       screenOptions={{
         drawerActiveTintColor: AppColors.primary,
         drawerInactiveTintColor: AppColors.textSecondary,
+        drawerActiveBackgroundColor: AppColors.primarySoft,
         drawerLabelStyle: { fontWeight: '800' },
-        headerStyle: { backgroundColor: AppColors.card },
-        headerTintColor: AppColors.text,
+        headerStyle: { backgroundColor: AppColors.primary },
+        headerTintColor: AppColors.onPrimary,
+        headerTitleStyle: { color: AppColors.onPrimary, fontWeight: '900' },
         drawerStyle: { backgroundColor: AppColors.card },
       }}>
       <Drawer.Screen

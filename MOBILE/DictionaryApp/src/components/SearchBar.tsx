@@ -7,38 +7,51 @@ type SearchBarProps = {
   onChangeText: (value: string) => void;
   onSubmit: () => void;
   disabled?: boolean;
+  errorMessage?: string;
 };
 
-export function SearchBar({ value, onChangeText, onSubmit, disabled }: SearchBarProps) {
+export function SearchBar({
+  value,
+  onChangeText,
+  onSubmit,
+  disabled,
+  errorMessage,
+}: SearchBarProps) {
   return (
-    <View style={styles.container}>
-      <TextInput
-        autoCapitalize="none"
-        autoCorrect={false}
-        editable={!disabled}
-        onChangeText={onChangeText}
-        onSubmitEditing={onSubmit}
-        placeholder="Type a word to explore"
-        placeholderTextColor={AppColors.textSecondary}
-        returnKeyType="search"
-        style={styles.input}
-        value={value}
-      />
-      <Pressable
-        accessibilityRole="button"
-        disabled={disabled}
-        onPress={onSubmit}
-        style={({ pressed }) => [
-          styles.button,
-          (pressed || disabled) && styles.buttonPressed,
-        ]}>
-        <Text style={styles.buttonText}>Explore</Text>
-      </Pressable>
+    <View style={styles.wrapper}>
+      <View style={styles.container}>
+        <TextInput
+          autoCapitalize="none"
+          autoCorrect={false}
+          editable={!disabled}
+          onChangeText={onChangeText}
+          onSubmitEditing={onSubmit}
+          placeholder="Type a word to explore"
+          placeholderTextColor={AppColors.textSecondary}
+          returnKeyType="search"
+          style={[styles.input, errorMessage && styles.inputError]}
+          value={value}
+        />
+        <Pressable
+          accessibilityRole="button"
+          disabled={disabled}
+          onPress={onSubmit}
+          style={({ pressed }) => [
+            styles.button,
+            (pressed || disabled) && styles.buttonPressed,
+          ]}>
+          <Text style={styles.buttonText}>Explore</Text>
+        </Pressable>
+      </View>
+      {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  wrapper: {
+    gap: 8,
+  },
   container: {
     flexDirection: 'row',
     gap: 10,
@@ -53,6 +66,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     color: AppColors.text,
     fontSize: 16,
+  },
+  inputError: {
+    borderColor: AppColors.danger,
+    backgroundColor: AppColors.dangerSoft,
   },
   button: {
     minHeight: 52,
@@ -69,5 +86,11 @@ const styles = StyleSheet.create({
     color: AppColors.onPrimary,
     fontSize: 16,
     fontWeight: '700',
+  },
+  errorText: {
+    color: AppColors.danger,
+    fontSize: 14,
+    fontWeight: '700',
+    lineHeight: 20,
   },
 });

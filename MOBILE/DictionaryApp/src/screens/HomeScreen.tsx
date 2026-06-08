@@ -14,6 +14,7 @@ import { AppColors } from '@/constants/appColors';
 import { useAuth } from '@/context/AuthContext';
 import { getSearchHistory, saveSearchWord } from '@/storage/historyStorage';
 import { DictionaryEntry } from '@/types/dictionary';
+import { validateWord } from '@/utils/wordValidation';
 
 const EMPTY_STATE =
   'Search a word you heard, read, or want to master. LexiTech will bring back meanings, examples, and pronunciation.';
@@ -26,19 +27,22 @@ export default function HomeScreen() {
   const [wordEntries, setWordEntries] = useState<DictionaryEntry[]>([]);
   const [history, setHistory] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
+  const [validationMessage, setValidationMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
   const searchWord = useCallback(async (wordToSearch = searchTerm) => {
     const trimmedWord = wordToSearch.trim();
+    const validation = validateWord(trimmedWord);
 
     if (!currentUser) {
       setErrorMessage('Please log in before searching.');
       return;
     }
 
-    if (!trimmedWord) {
-      setErrorMessage('Please enter a word before searching.');
+    if (!validation.valid) {
+      setValidationMessage(validation.message);
+      setErrorMessage('');
       setWordEntries([]);
       return;
     }
@@ -46,6 +50,7 @@ export default function HomeScreen() {
     setIsLoading(true);
     setHasSearched(true);
     setErrorMessage('');
+    setValidationMessage('');
     setLastSubmittedWord(trimmedWord);
 
     try {
@@ -92,6 +97,14 @@ export default function HomeScreen() {
     searchWord(lastSubmittedWord || searchTerm);
   };
 
+  const handleSearchTextChange = (nextValue: string) => {
+    setSearchTerm(nextValue);
+
+    if (validationMessage && validateWord(nextValue).valid) {
+      setValidationMessage('');
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
@@ -112,7 +125,8 @@ export default function HomeScreen() {
           <View style={styles.searchPanel}>
             <SearchBar
               disabled={isLoading}
-              onChangeText={setSearchTerm}
+              errorMessage={validationMessage}
+              onChangeText={handleSearchTextChange}
               onSubmit={() => searchWord()}
               value={searchTerm}
             />
