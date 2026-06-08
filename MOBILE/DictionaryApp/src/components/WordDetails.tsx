@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 import { AppColors } from '@/constants/appColors';
 import { DictionaryEntry } from '@/types/dictionary';
@@ -23,10 +23,12 @@ export function WordDetails({ entries }: WordDetailsProps) {
   const phonetic = getDisplayPhonetic(firstEntry);
   const player = useAudioPlayer(audioUrl);
   const status = useAudioPlayerStatus(player);
-  const [manualAudioError, setManualAudioError] = useState<{ message: string; url: string | null }>({
-    message: '',
-    url: null,
-  });
+  const [manualAudioError, setManualAudioError] = useState<{ message: string; url: string | null }>(
+    {
+      message: '',
+      url: null,
+    },
+  );
 
   const isAudioLoading = !!audioUrl && status.isBuffering;
   const isAudioPlaying = !!audioUrl && status.playing;
@@ -103,16 +105,15 @@ export function WordDetails({ entries }: WordDetailsProps) {
     }
 
     return (
-      <View style={styles.audioControls}>
+      <View className="flex-row items-center gap-2">
         <Pressable
           accessibilityLabel={isAudioPlaying ? 'Pause pronunciation' : 'Play pronunciation'}
           accessibilityRole="button"
+          className={`h-11 w-12 items-center justify-center rounded-lg bg-indigo-50 ${
+            isAudioLoading ? 'opacity-70' : 'active:opacity-75'
+          }`}
           disabled={isAudioLoading}
-          onPress={() => togglePronunciation(0)}
-          style={({ pressed }) => [
-            styles.audioButton,
-            (pressed || isAudioLoading) && styles.audioButtonPressed,
-          ]}>
+          onPress={() => togglePronunciation(0)}>
           <Ionicons
             color={AppColors.primary}
             name={isAudioPlaying ? 'pause' : isAudioLoading ? 'hourglass-outline' : 'volume-high'}
@@ -124,8 +125,8 @@ export function WordDetails({ entries }: WordDetailsProps) {
           <Pressable
             accessibilityLabel="Stop pronunciation"
             accessibilityRole="button"
-            onPress={stopPronunciation}
-            style={({ pressed }) => [styles.stopButton, pressed && styles.audioButtonPressed]}>
+            className="h-10 w-10 items-center justify-center rounded-lg bg-red-50 active:opacity-75"
+            onPress={stopPronunciation}>
             <Ionicons color={AppColors.danger} name="stop" size={18} />
           </Pressable>
         ) : null}
@@ -139,13 +140,13 @@ export function WordDetails({ entries }: WordDetailsProps) {
     }
 
     return (
-      <View style={styles.pronunciationSection}>
-        <View style={styles.pronunciationHeading}>
+      <View className="gap-3">
+        <View className="flex-row items-center gap-2">
           <Ionicons color={AppColors.accent} name="mic-outline" size={18} />
-          <Text style={styles.pronunciationTitle}>Pronunciations</Text>
+          <Text className="text-[17px] font-black text-text">Pronunciations</Text>
         </View>
 
-        <View style={styles.pronunciationCards}>
+        <View className="gap-2.5">
           {pronunciations.map((pronunciation, index) => {
             const isSelected = pronunciation.audioUrl === audioUrl;
             const isPlayingThis = isSelected && isAudioPlaying;
@@ -153,36 +154,41 @@ export function WordDetails({ entries }: WordDetailsProps) {
 
             return (
               <View
-                key={pronunciation.id}
-                style={[styles.pronunciationCard, isSelected && styles.pronunciationCardActive]}>
+                className={`min-h-[66px] flex-row items-center gap-3 rounded-lg border p-3 ${
+                  isSelected ? 'border-accent bg-purple-50' : 'border-gray-200 bg-card'
+                }`}
+                key={pronunciation.id}>
                 <Pressable
                   accessibilityRole="button"
-                  onPress={() => togglePronunciation(index)}
-                  style={({ pressed }) => [
-                    styles.pronunciationPlayButton,
-                    pressed && styles.audioButtonPressed,
-                  ]}>
+                  className="h-11 w-11 items-center justify-center rounded-lg bg-indigo-50 active:opacity-75"
+                  onPress={() => togglePronunciation(index)}>
                   <Ionicons
                     color={isPlayingThis ? AppColors.accent : AppColors.primary}
-                    name={isPlayingThis ? 'pause' : isLoadingThis ? 'hourglass-outline' : 'volume-high'}
+                    name={
+                      isPlayingThis ? 'pause' : isLoadingThis ? 'hourglass-outline' : 'volume-high'
+                    }
                     size={20}
                   />
                 </Pressable>
 
-                <View style={styles.pronunciationTextGroup}>
-                  <Text style={styles.pronunciationLabel}>{pronunciation.label}</Text>
+                <View className="flex-1 gap-0.5">
+                  <Text className="text-[15px] font-black text-text">{pronunciation.label}</Text>
                   {pronunciation.phoneticText ? (
-                    <Text style={styles.pronunciationMeta}>{pronunciation.phoneticText}</Text>
+                    <Text className="text-[13px] font-bold text-secondary">
+                      {pronunciation.phoneticText}
+                    </Text>
                   ) : null}
-                  {isPlayingThis ? <Text style={styles.playingNow}>Playing now</Text> : null}
+                  {isPlayingThis ? (
+                    <Text className="text-xs font-black uppercase text-accent">Playing now</Text>
+                  ) : null}
                 </View>
 
                 {isSelected && isAudioActive ? (
                   <Pressable
                     accessibilityLabel="Stop pronunciation"
                     accessibilityRole="button"
-                    onPress={stopPronunciation}
-                    style={({ pressed }) => [styles.cardStopButton, pressed && styles.audioButtonPressed]}>
+                    className="h-9 w-9 items-center justify-center rounded-lg bg-red-50 active:opacity-75"
+                    onPress={stopPronunciation}>
                     <Ionicons color={AppColors.danger} name="stop" size={16} />
                   </Pressable>
                 ) : null}
@@ -199,37 +205,47 @@ export function WordDetails({ entries }: WordDetailsProps) {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.wordGroup}>
-          <Text style={styles.word}>{firstEntry.word || 'Unknown word'}</Text>
-          {phonetic ? <Text style={styles.phonetic}>{phonetic}</Text> : null}
+    <View className="gap-5 rounded-lg bg-card p-5 shadow-sm">
+      <View className="flex-row items-center justify-between gap-4">
+        <View className="flex-1 gap-1.5">
+          <Text className="text-[34px] font-black capitalize leading-10 text-text">
+            {firstEntry.word || 'Unknown word'}
+          </Text>
+          {phonetic ? <Text className="text-[17px] font-bold text-accent">{phonetic}</Text> : null}
         </View>
 
         {renderSinglePronunciationControl()}
       </View>
 
-      {audioError ? <Text style={styles.audioError}>{audioError}</Text> : null}
+      {audioError ? <Text className="text-sm font-bold text-red-700">{audioError}</Text> : null}
       {pronunciations.length === 0 ? (
-        <Text style={styles.noAudioText}>Pronunciation audio is not available for this word yet.</Text>
+        <Text className="text-sm leading-5 text-secondary">
+          Pronunciation audio is not available for this word yet.
+        </Text>
       ) : null}
       {renderPronunciationSelector()}
 
       {entries.map((entry, entryIndex) =>
         (entry.meanings ?? []).map((meaning, meaningIndex) => (
           <View
-            key={`${entry.word}-${entryIndex}-${meaning.partOfSpeech}-${meaningIndex}`}
-            style={styles.meaning}>
-            <Text style={styles.partOfSpeech}>{meaning.partOfSpeech || 'Meaning'}</Text>
+            className="gap-3"
+            key={`${entry.word}-${entryIndex}-${meaning.partOfSpeech}-${meaningIndex}`}>
+            <Text className="self-start overflow-hidden rounded-lg bg-purple-50 px-2.5 py-1 text-sm font-black uppercase text-accent">
+              {meaning.partOfSpeech || 'Meaning'}
+            </Text>
             {(meaning.definitions ?? []).map((definition, definitionIndex) => (
-              <View key={`${definition.definition}-${definitionIndex}`} style={styles.definitionRow}>
-                <Text style={styles.definitionNumber}>{definitionIndex + 1}</Text>
-                <View style={styles.definitionTextGroup}>
-                  <Text style={styles.definitionText}>
+              <View className="flex-row gap-3" key={`${definition.definition}-${definitionIndex}`}>
+                <Text className="h-7 w-7 rounded-lg bg-indigo-50 text-center text-[13px] font-extrabold leading-7 text-primary">
+                  {definitionIndex + 1}
+                </Text>
+                <View className="flex-1 gap-2">
+                  <Text className="text-base leading-6 text-text">
                     {definition.definition || 'No definition available.'}
                   </Text>
                   {definition.example ? (
-                    <Text style={styles.exampleText}>{`"${definition.example}"`}</Text>
+                    <Text className="border-l-4 border-accent pl-3 text-[15px] italic leading-6 text-secondary">
+                      {`"${definition.example}"`}
+                    </Text>
                   ) : null}
                 </View>
               </View>
@@ -240,182 +256,3 @@ export function WordDetails({ entries }: WordDetailsProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    borderRadius: 8,
-    backgroundColor: AppColors.card,
-    padding: 20,
-    gap: 20,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 16,
-    alignItems: 'center',
-  },
-  wordGroup: {
-    flex: 1,
-    gap: 6,
-  },
-  word: {
-    color: AppColors.text,
-    fontSize: 34,
-    fontWeight: '900',
-    textTransform: 'capitalize',
-  },
-  phonetic: {
-    color: AppColors.accent,
-    fontSize: 17,
-    fontWeight: '700',
-  },
-  audioControls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  audioButton: {
-    width: 46,
-    height: 42,
-    borderRadius: 8,
-    backgroundColor: AppColors.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  audioButtonPressed: {
-    opacity: 0.7,
-  },
-  stopButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
-    backgroundColor: AppColors.dangerSoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  audioError: {
-    color: AppColors.danger,
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  noAudioText: {
-    color: AppColors.textSecondary,
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  pronunciationSection: {
-    gap: 12,
-  },
-  pronunciationHeading: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  pronunciationTitle: {
-    color: AppColors.text,
-    fontSize: 17,
-    fontWeight: '900',
-  },
-  pronunciationCards: {
-    gap: 10,
-  },
-  pronunciationCard: {
-    minHeight: 66,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    borderWidth: 1,
-    borderColor: AppColors.border,
-    borderRadius: 8,
-    backgroundColor: AppColors.card,
-    padding: 12,
-  },
-  pronunciationCardActive: {
-    borderColor: AppColors.accent,
-    backgroundColor: AppColors.accentSoft,
-  },
-  pronunciationPlayButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 8,
-    backgroundColor: AppColors.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  pronunciationTextGroup: {
-    flex: 1,
-    gap: 3,
-  },
-  pronunciationLabel: {
-    color: AppColors.text,
-    fontSize: 15,
-    fontWeight: '900',
-  },
-  pronunciationMeta: {
-    color: AppColors.textSecondary,
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  playingNow: {
-    color: AppColors.accent,
-    fontSize: 12,
-    fontWeight: '900',
-    textTransform: 'uppercase',
-  },
-  cardStopButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 8,
-    backgroundColor: AppColors.dangerSoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  meaning: {
-    gap: 12,
-  },
-  partOfSpeech: {
-    alignSelf: 'flex-start',
-    borderRadius: 8,
-    backgroundColor: AppColors.accentSoft,
-    color: AppColors.accent,
-    overflow: 'hidden',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    fontSize: 14,
-    fontWeight: '900',
-    textTransform: 'uppercase',
-  },
-  definitionRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  definitionNumber: {
-    width: 26,
-    height: 26,
-    borderRadius: 8,
-    backgroundColor: AppColors.primarySoft,
-    color: AppColors.primary,
-    fontSize: 13,
-    fontWeight: '800',
-    textAlign: 'center',
-    lineHeight: 26,
-  },
-  definitionTextGroup: {
-    flex: 1,
-    gap: 8,
-  },
-  definitionText: {
-    color: AppColors.text,
-    fontSize: 16,
-    lineHeight: 24,
-  },
-  exampleText: {
-    borderLeftWidth: 3,
-    borderLeftColor: AppColors.accent,
-    color: AppColors.textSecondary,
-    fontSize: 15,
-    fontStyle: 'italic',
-    lineHeight: 22,
-    paddingLeft: 10,
-  },
-});

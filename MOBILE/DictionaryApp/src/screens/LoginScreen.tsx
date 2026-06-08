@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppColors } from '@/constants/appColors';
@@ -38,124 +38,55 @@ export function LoginScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.eyebrow}>LexiTech Dictionary</Text>
-          <Text style={styles.title}>Your words are waiting.</Text>
-          <Text style={styles.subtitle}>
-            Log in with your class account and pick up your vocabulary journey right where you left it.
+    <SafeAreaView className="flex-1 bg-background">
+      <View className="w-full max-w-xl flex-1 justify-center gap-5 self-center px-6 py-8">
+        <View className="gap-2">
+          <Text className="text-[13px] font-black uppercase tracking-normal text-primary">
+            LexiTech Dictionary
+          </Text>
+          <Text className="text-[34px] font-black text-text">Your words are waiting.</Text>
+          <Text className="text-base leading-6 text-secondary">
+            Log in with your class account and pick up your vocabulary journey right where you left
+            it.
           </Text>
         </View>
 
-        <View style={styles.card}>
+        <View className="gap-3 rounded-lg bg-card p-5 shadow-sm">
           <TextInput
             autoCapitalize="none"
             autoCorrect={false}
+            className="min-h-[52px] rounded-lg border border-gray-200 px-4 text-base text-text"
             onChangeText={setUsername}
             placeholder="Username"
             placeholderTextColor={AppColors.textSecondary}
-            style={styles.input}
             value={username}
           />
           <TextInput
+            className="min-h-[52px] rounded-lg border border-gray-200 px-4 text-base text-text"
             onChangeText={setPassword}
             placeholder="Password"
             placeholderTextColor={AppColors.textSecondary}
             secureTextEntry
-            style={styles.input}
             value={password}
           />
-          {message ? <Text style={styles.message}>{message}</Text> : null}
+          {message ? <Text className="text-sm leading-5 text-red-700">{message}</Text> : null}
           <Pressable
             accessibilityRole="button"
+            className={`min-h-[52px] items-center justify-center rounded-lg bg-primary ${
+              isSubmitting ? 'opacity-70' : 'active:opacity-75'
+            }`}
             disabled={isSubmitting}
-            onPress={handleLogin}
-            style={({ pressed }) => [styles.button, (pressed || isSubmitting) && styles.buttonMuted]}>
-            <Text style={styles.buttonText}>{isSubmitting ? 'Logging in...' : 'Login'}</Text>
+            onPress={handleLogin}>
+            <Text className="text-base font-extrabold text-white">
+              {isSubmitting ? 'Logging in...' : 'Login'}
+            </Text>
           </Pressable>
         </View>
 
-        <Text style={styles.footerText}>
+        <Text className="text-center text-[15px] text-secondary">
           Local demo access only. Use your assigned LexiTech account to continue.
         </Text>
       </View>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: AppColors.background,
-  },
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 24,
-    gap: 18,
-    alignSelf: 'center',
-    width: '100%',
-    maxWidth: 520,
-  },
-  header: {
-    gap: 8,
-  },
-  eyebrow: {
-    color: AppColors.primary,
-    fontSize: 13,
-    fontWeight: '900',
-    letterSpacing: 0,
-    textTransform: 'uppercase',
-  },
-  title: {
-    color: AppColors.text,
-    fontSize: 34,
-    fontWeight: '900',
-  },
-  subtitle: {
-    color: AppColors.textSecondary,
-    fontSize: 16,
-    lineHeight: 24,
-  },
-  card: {
-    backgroundColor: AppColors.card,
-    borderRadius: 8,
-    padding: 18,
-    gap: 12,
-  },
-  input: {
-    minHeight: 52,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: AppColors.border,
-    paddingHorizontal: 16,
-    color: AppColors.text,
-    fontSize: 16,
-  },
-  message: {
-    color: AppColors.danger,
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  button: {
-    minHeight: 52,
-    borderRadius: 8,
-    backgroundColor: AppColors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonMuted: {
-    opacity: 0.72,
-  },
-  buttonText: {
-    color: AppColors.onPrimary,
-    fontSize: 16,
-    fontWeight: '800',
-  },
-  footerText: {
-    color: AppColors.textSecondary,
-    textAlign: 'center',
-    fontSize: 15,
-  },
-});

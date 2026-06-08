@@ -1,26 +1,12 @@
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 
 import { AppColors } from '@/constants/appColors';
 
 export function LoadingIndicator() {
   return (
-    <View style={styles.container}>
+    <View className="items-center gap-3 rounded-lg bg-card p-6 shadow-sm">
       <ActivityIndicator color={AppColors.primary} size="large" />
-      <Text style={styles.text}>wait a moment ...</Text>
+      <Text className="text-base text-secondary">Opening the meaning...</Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    borderRadius: 8,
-    backgroundColor: AppColors.card,
-    padding: 24,
-    gap: 12,
-  },
-  text: {
-    color: AppColors.textSecondary,
-    fontSize: 15,
-  },
-});

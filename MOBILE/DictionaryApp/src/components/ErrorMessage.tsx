@@ -1,6 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-
-import { AppColors } from '@/constants/appColors';
+import { Pressable, Text, View } from 'react-native';
 
 type ErrorMessageProps = {
   message: string;
@@ -9,46 +7,17 @@ type ErrorMessageProps = {
 
 export function ErrorMessage({ message, onRetry }: ErrorMessageProps) {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>We could not find that yet</Text>
-      <Text style={styles.message}>{message}</Text>
+    <View className="gap-2 rounded-lg border border-red-200 bg-red-50 p-5 shadow-sm">
+      <Text className="text-base font-extrabold text-red-700">We could not find that yet</Text>
+      <Text className="text-[15px] leading-6 text-text">{message}</Text>
       {onRetry ? (
-        <Pressable accessibilityRole="button" onPress={onRetry} style={styles.retryButton}>
-          <Text style={styles.retryText}>Retry</Text>
+        <Pressable
+          accessibilityRole="button"
+          className="self-start rounded-lg bg-red-700 px-4 py-2.5 active:opacity-75"
+          onPress={onRetry}>
+          <Text className="font-extrabold text-white">Retry</Text>
         </Pressable>
       ) : null}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: AppColors.dangerBorder,
-    backgroundColor: AppColors.dangerSoft,
-    padding: 18,
-    gap: 8,
-  },
-  title: {
-    color: AppColors.danger,
-    fontSize: 16,
-    fontWeight: '800',
-  },
-  message: {
-    color: AppColors.text,
-    fontSize: 15,
-    lineHeight: 22,
-  },
-  retryButton: {
-    alignSelf: 'flex-start',
-    borderRadius: 8,
-    backgroundColor: AppColors.danger,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-  },
-  retryText: {
-    color: AppColors.onPrimary,
-    fontWeight: '800',
-  },
-});
