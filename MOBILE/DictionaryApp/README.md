@@ -1,56 +1,95 @@
-# Welcome to your Expo app 👋
+# Dictionary Mobile App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A clean cross-platform React Native dictionary app built with Expo Router, Axios, Expo Audio, and AsyncStorage. It searches the Free Dictionary API, displays meanings and examples, plays pronunciation audio when available, and keeps recent searches locally.
 
-## Get started
-
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Setup
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Use the Expo CLI prompt to open Android, iOS, or web.
 
-### Other setup steps
+## Scripts
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+```bash
+npm run android
+npm run ios
+npm run web
+npm run lint
+```
 
-## Learn more
+## API
 
-To learn more about developing your project with Expo, look at the following resources:
+The app calls:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```text
+https://api.dictionaryapi.dev/api/v2/entries/en/{word}
+```
 
-## Join the community
+## Pages/Screens
 
-Join our community of developers creating universal apps.
+- `HomeScreen`: search input, recent history, loading/error/empty states, word details, and audio playback.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Entities/Models
+
+- `DictionaryEntry`: word, phonetic text, phonetics, meanings, and source URLs.
+- `DictionaryPhonetic`: phonetic spelling and optional audio URL.
+- `DictionaryMeaning`: part of speech and definitions.
+- `DictionaryDefinition`: definition text, optional example, synonyms, and antonyms.
+- `SearchHistory`: locally persisted list of unique recent words.
+
+## Flow Diagram
+
+```mermaid
+flowchart TD
+  A[User enters word] --> B{Input empty?}
+  B -- Yes --> C[Show validation message]
+  B -- No --> D[Build API URL]
+  D --> E[Axios GET request]
+  E --> F{Response OK?}
+  F -- Yes --> G[Parse dictionary entries]
+  G --> H[Save unique word to AsyncStorage]
+  H --> I[Render word details]
+  I --> J{Audio URL exists?}
+  J -- Yes --> K[Normalize URL and enable play button]
+  J -- No --> L[Hide audio button]
+  F -- 404 --> M[Show word not found]
+  F -- Network error --> N[Show retry message]
+```
+
+## Architecture Diagram
+
+```mermaid
+flowchart LR
+  UI[HomeScreen] --> SearchBar
+  UI --> HistoryList
+  UI --> WordDetails
+  UI --> ErrorMessage
+  UI --> LoadingIndicator
+  UI --> API[dictionaryApi.ts]
+  UI --> Storage[historyStorage.ts]
+  WordDetails --> Audio[audioUtils.ts]
+  API --> FreeAPI[Free Dictionary API]
+  Storage --> AsyncStorage[(AsyncStorage)]
+  Audio --> ExpoAudio[Expo Audio]
+```
+
+## Project Structure
+
+```text
+src/
+  api/dictionaryApi.ts
+  app/_layout.tsx
+  app/index.tsx
+  components/ErrorMessage.tsx
+  components/HistoryList.tsx
+  components/LoadingIndicator.tsx
+  components/SearchBar.tsx
+  components/WordDetails.tsx
+  screens/HomeScreen.tsx
+  storage/historyStorage.ts
+  types/dictionary.ts
+  utils/audioUtils.ts
+```
