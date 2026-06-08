@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { validateWord } from '@/utils/wordValidation';
+
 export type SearchHistoryStatus = 'success' | 'not_found' | 'error';
 
 export type SearchHistoryItem = {
@@ -15,9 +17,13 @@ function createHistoryId(word: string) {
   return `${word}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
+function normalizeHistoryWord(word: string) {
+  return word.trim().toLowerCase();
+}
+
 function normalizeHistoryItem(item: unknown): SearchHistoryItem | null {
   if (typeof item === 'string') {
-    const word = item.trim().toLowerCase();
+    const word = normalizeHistoryWord(item);
     if (!word) {
       return null;
     }
@@ -41,7 +47,7 @@ function normalizeHistoryItem(item: unknown): SearchHistoryItem | null {
 
   return {
     id: candidate.id || createHistoryId(candidate.word),
-    word: candidate.word.trim().toLowerCase(),
+    word: normalizeHistoryWord(candidate.word),
     status:
       candidate.status === 'not_found' || candidate.status === 'error'
         ? candidate.status
@@ -67,23 +73,26 @@ export async function saveSearchAttempt(
   word: string,
   status: SearchHistoryStatus,
 ): Promise<SearchHistoryItem[]> {
-  const cleanedWord = word.trim().toLowerCase();
-  if (!cleanedWord) {
+  const trimmedWord = word.trim();
+  if (!validateWord(trimmedWord).valid) {
     return getSearchHistory(userId);
   }
 
+  const cleanedWord = normalizeHistoryWord(trimmedWord);
   const currentHistory = await getSearchHistory(userId);
-  const newItem: SearchHistoryItem = {
-    id: createHistoryId(cleanedWord),
+  const existingItem = currentHistory.find(
+    (item) => normalizeHistoryWord(item.word) === cleanedWord,
+  );
+  const nextItem: SearchHistoryItem = {
+    id: existingItem?.id || createHistoryId(cleanedWord),
     word: cleanedWord,
     status,
     searchedAt: new Date().toISOString(),
   };
-  const [, ...restHistory] = currentHistory;
-  const nextHistory =
-    currentHistory[0]?.word.toLowerCase() === cleanedWord
-      ? [newItem, ...restHistory]
-      : [newItem, ...currentHistory];
+  const restHistory = currentHistory.filter(
+    (item) => normalizeHistoryWord(item.word) !== cleanedWord,
+  );
+  const nextHistory = [nextItem, ...restHistory];
 
   await AsyncStorage.setItem(historyKeyForUser(userId), JSON.stringify(nextHistory));
   return nextHistory;

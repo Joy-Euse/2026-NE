@@ -1,9 +1,9 @@
-import { Ionicons } from '@expo/vector-icons';
-import { Text, View } from 'react-native';
+import { Image, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { AppColors } from '@/constants/appColors';
 import { useAuth } from '@/context/AuthContext';
+
+const profileImage = require('../../assets/images/profile.jpg');
 
 export function ProfileScreen() {
   const { currentUser } = useAuth();
@@ -12,7 +12,14 @@ export function ProfileScreen() {
     <SafeAreaView edges={['bottom']} className="flex-1 bg-background">
       <View className="w-full max-w-3xl self-center px-5 py-5">
         <View className="items-center gap-2.5 rounded-lg bg-card p-7 shadow-sm">
-          <Ionicons color={AppColors.primary} name="person-circle-outline" size={58} />
+          <View className="h-24 w-24 items-center justify-center rounded-full border-4 border-primary bg-background shadow-sm">
+            <Image
+              accessibilityLabel="Profile picture"
+              resizeMode="cover"
+              source={profileImage}
+              style={{ borderRadius: 48, height: 96, width: 96 }}
+            />
+          </View>
           <Text className="text-center text-3xl font-black text-text">
             {currentUser?.fullName || 'Unknown user'}
           </Text>

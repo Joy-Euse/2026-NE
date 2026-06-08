@@ -4,7 +4,7 @@ import { Image, Pressable, ScrollView, Text, useWindowDimensions, View } from 'r
 import { AppColors } from '@/constants/appColors';
 import { useAuth } from '@/context/AuthContext';
 
-const profileImage = require('@/assets/images/profile.jpg');
+const profileImage = require('../../assets/images/profile.jpg');
 
 const drawerItems = [
   { icon: 'search-outline', label: 'Home Search', routeName: 'index' },
@@ -59,9 +59,13 @@ export function AppDrawerContent(props: AppDrawerContentProps) {
             className="overflow-hidden rounded-full border-4 border-white bg-white shadow-sm"
             style={{ height: profileImageSize, width: profileImageSize }}>
             <Image
-              className="h-full w-full"
               resizeMode="cover"
               source={profileImage}
+              style={{
+                borderRadius: profileImageSize / 2,
+                height: profileImageSize,
+                width: profileImageSize,
+              }}
             />
           </View>
           <Text
