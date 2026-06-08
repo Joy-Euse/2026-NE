@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { isAxiosError } from 'axios';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
@@ -10,6 +11,7 @@ import { HistoryList } from '@/components/HistoryList';
 import { LoadingIndicator } from '@/components/LoadingIndicator';
 import { SearchBar } from '@/components/SearchBar';
 import { WordDetails } from '@/components/WordDetails';
+import { AppColors } from '@/constants/appColors';
 import { useAuth } from '@/context/AuthContext';
 import {
   getSearchHistory,
@@ -129,37 +131,48 @@ export default function HomeScreen() {
         className="flex-1">
         <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           <View className="w-full max-w-3xl gap-5 self-center px-5 pb-10 pt-5">
-            <View className="overflow-hidden rounded-2xl bg-card shadow-sm">
-              <View className="h-3 bg-primary" />
-              <View className="gap-5 p-5 sm:p-6">
-                <View className="gap-3">
-                  <Text className="text-xs font-black uppercase tracking-wide text-primary">
-                    LexiTech Dictionary
+            <View className="relative min-h-[118px] overflow-hidden rounded-xl bg-accent px-4 py-4 shadow-sm">
+              <View className="absolute -right-7 -top-8 h-28 w-28 rounded-full bg-primary opacity-40" />
+              <View className="absolute -bottom-10 right-8 h-24 w-24 rounded-full bg-white opacity-10" />
+
+              <View className="flex-row items-center justify-between gap-3">
+                <View className="max-w-[68%] gap-1.5">
+                  <View className="flex-row items-center gap-1.5">
+                    <Ionicons color={AppColors.onPrimary} name="book-outline" size={13} />
+                    <Text className="text-[11px] font-black uppercase tracking-wide text-white opacity-90">
+                      LexiTech Dictionary
+                    </Text>
+                  </View>
+                  <Text className="text-xl font-black leading-6 text-white">
+                    Meanings, examples & audio
                   </Text>
-                  <Text className="max-w-xl text-[34px] font-black leading-tight text-text sm:text-5xl">
-                    One search at a time.
-                  </Text>
-                  <Text className="max-w-2xl text-base leading-7 text-secondary">
-                    Look up definitions, hear pronunciation, and keep your personal vocabulary trail
-                    close.
+                  <Text className="text-xs font-semibold leading-5 text-white opacity-85">
+                    Search smarter and keep your vocabulary trail close.
                   </Text>
                 </View>
 
-                <View className="gap-4">
-                  <SearchBar
-                    disabled={isLoading}
-                    errorMessage={validationMessage}
-                    onChangeText={handleSearchTextChange}
-                    onSubmit={() => searchWord()}
-                    value={searchTerm}
-                  />
-                  <HistoryList
-                    history={history}
-                    onOpenHistory={() => router.navigate('/history')}
-                    onSelectWord={searchWord}
-                  />
+                <View className="h-[82px] w-[96px] items-center justify-center">
+                  <View className="absolute bottom-1 h-3 w-20 rounded-full bg-primary opacity-40" />
+                  <View className="-rotate-12 rounded-xl bg-white p-3 shadow-sm">
+                    <Ionicons color={AppColors.primary} name="book" size={42} />
+                  </View>
                 </View>
               </View>
+            </View>
+
+            <View className="gap-4 rounded-2xl bg-card p-4 shadow-sm">
+              <SearchBar
+                disabled={isLoading}
+                errorMessage={validationMessage}
+                onChangeText={handleSearchTextChange}
+                onSubmit={() => searchWord()}
+                value={searchTerm}
+              />
+              <HistoryList
+                history={history}
+                onOpenHistory={() => router.navigate('/history')}
+                onSelectWord={searchWord}
+              />
             </View>
 
             {isLoading ? <LoadingIndicator /> : null}
