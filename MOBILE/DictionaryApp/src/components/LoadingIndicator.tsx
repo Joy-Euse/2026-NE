@@ -6,7 +6,7 @@ export function LoadingIndicator() {
   return (
     <View style={styles.container}>
       <ActivityIndicator color={AppColors.primary} size="large" />
-      <Text style={styles.text}>Opening the meaning...</Text>
+      <Text style={styles.text}>wait a moment ...</Text>
     </View>
   );
 }
