@@ -1,6 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { AppColors } from '@/constants/appColors';
+
 type HistoryListProps = {
   history: string[];
   onOpenHistory: () => void;
@@ -15,13 +17,13 @@ export function HistoryList({ history, onOpenHistory, onSelectWord }: HistoryLis
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Recent searches</Text>
+        <Text style={styles.title}>Words you recently explored</Text>
         <Pressable
           accessibilityLabel="Open full search history"
           accessibilityRole="button"
           onPress={onOpenHistory}
           style={({ pressed }) => [styles.iconButton, pressed && styles.itemPressed]}>
-          <Ionicons color="#2457d6" name="time-outline" size={20} />
+          <Ionicons color={AppColors.primary} name="time-outline" size={20} />
         </Pressable>
       </View>
       <ScrollView
@@ -53,7 +55,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   title: {
-    color: '#4f5f76',
+    color: AppColors.textSecondary,
     fontSize: 14,
     fontWeight: '700',
   },
@@ -63,7 +65,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 8,
-    backgroundColor: '#eef4ff',
+    backgroundColor: AppColors.primarySoft,
   },
   items: {
     flexDirection: 'row',
@@ -73,16 +75,16 @@ const styles = StyleSheet.create({
   item: {
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#d7dde8',
-    backgroundColor: '#ffffff',
+    borderColor: AppColors.border,
+    backgroundColor: AppColors.card,
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
   itemPressed: {
-    backgroundColor: '#eef4ff',
+    backgroundColor: AppColors.primarySoft,
   },
   itemText: {
-    color: '#2457d6',
+    color: AppColors.primary,
     fontSize: 14,
     fontWeight: '700',
   },

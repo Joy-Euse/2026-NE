@@ -10,12 +10,13 @@ import { HistoryList } from '@/components/HistoryList';
 import { LoadingIndicator } from '@/components/LoadingIndicator';
 import { SearchBar } from '@/components/SearchBar';
 import { WordDetails } from '@/components/WordDetails';
+import { AppColors } from '@/constants/appColors';
 import { useAuth } from '@/context/AuthContext';
 import { getSearchHistory, saveSearchWord } from '@/storage/historyStorage';
 import { DictionaryEntry } from '@/types/dictionary';
 
 const EMPTY_STATE =
-  'Search for any English word to see definitions, parts of speech, examples, and pronunciation.';
+  'Search a word you heard, read, or want to master. LexiTech will bring back meanings, examples, and pronunciation.';
 
 export default function HomeScreen() {
   const { currentUser } = useAuth();
@@ -102,9 +103,9 @@ export default function HomeScreen() {
           showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
             <Text style={styles.eyebrow}>LexiTech Dictionary</Text>
-            <Text style={styles.title}>Find precise meanings fast.</Text>
+            <Text style={styles.title}>Build your word power, one search at a time.</Text>
             <Text style={styles.subtitle}>
-              Search definitions, examples, phonetics, and pronunciation in one calm reading view.
+              Look up definitions, hear pronunciation, and keep your personal vocabulary trail close.
             </Text>
           </View>
 
@@ -134,7 +135,7 @@ export default function HomeScreen() {
 
           {!isLoading && !errorMessage && wordEntries.length === 0 && !hasSearched ? (
             <View style={styles.emptyState}>
-              <Text style={styles.emptyTitle}>Ready when you are</Text>
+              <Text style={styles.emptyTitle}>What word is on your mind?</Text>
               <Text style={styles.emptyText}>{EMPTY_STATE}</Text>
             </View>
           ) : null}
@@ -147,7 +148,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f4f7fb',
+    backgroundColor: AppColors.background,
   },
   keyboardView: {
     flex: 1,
@@ -166,44 +167,44 @@ const styles = StyleSheet.create({
     paddingBottom: 4,
   },
   eyebrow: {
-    color: '#2457d6',
+    color: AppColors.primary,
     fontSize: 14,
     fontWeight: '900',
     letterSpacing: 0,
     textTransform: 'uppercase',
   },
   title: {
-    color: '#121826',
+    color: AppColors.text,
     fontSize: 36,
     fontWeight: '900',
     lineHeight: 42,
   },
   subtitle: {
-    color: '#526173',
+    color: AppColors.textSecondary,
     fontSize: 16,
     lineHeight: 24,
   },
   searchPanel: {
     borderRadius: 8,
-    backgroundColor: '#ffffff',
+    backgroundColor: AppColors.card,
     padding: 16,
     gap: 16,
   },
   emptyState: {
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#dce4f0',
-    backgroundColor: '#ffffff',
+    borderColor: AppColors.border,
+    backgroundColor: AppColors.card,
     padding: 24,
     gap: 8,
   },
   emptyTitle: {
-    color: '#121826',
+    color: AppColors.text,
     fontSize: 20,
     fontWeight: '900',
   },
   emptyText: {
-    color: '#526173',
+    color: AppColors.textSecondary,
     fontSize: 16,
     lineHeight: 24,
   },

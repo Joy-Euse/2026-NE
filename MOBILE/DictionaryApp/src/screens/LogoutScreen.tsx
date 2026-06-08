@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { AppColors } from '@/constants/appColors';
 import { useAuth } from '@/context/AuthContext';
 
 export function LogoutScreen() {
@@ -15,7 +16,7 @@ export function LogoutScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Logging out...</Text>
+      <Text style={styles.text}>Signing you out of LexiTech...</Text>
     </View>
   );
 }
@@ -25,10 +26,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f4f7fb',
+    backgroundColor: AppColors.background,
   },
   text: {
-    color: '#526173',
+    color: AppColors.textSecondary,
     fontSize: 16,
     fontWeight: '800',
   },

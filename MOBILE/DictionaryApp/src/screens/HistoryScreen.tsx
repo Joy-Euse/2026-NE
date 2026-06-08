@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppColors } from '@/constants/appColors';
 import { useAuth } from '@/context/AuthContext';
 import { clearSearchHistory, getSearchHistory } from '@/storage/historyStorage';
 
@@ -39,17 +40,17 @@ export function HistoryScreen() {
     <SafeAreaView edges={['bottom']} style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.eyebrow}>Full search history</Text>
-          <Text style={styles.title}>Your saved lookups</Text>
-          <Text style={styles.subtitle}>Newest searches appear first and duplicates are removed.</Text>
+          <Text style={styles.eyebrow}>Word trail</Text>
+          <Text style={styles.title}>Everything you have explored</Text>
+          <Text style={styles.subtitle}>Your newest searches stay at the top, ready for quick review.</Text>
         </View>
 
         {history.length === 0 ? (
           <View style={styles.emptyState}>
-            <Ionicons color="#2457d6" name="time-outline" size={30} />
-            <Text style={styles.emptyTitle}>No history yet</Text>
+            <Ionicons color={AppColors.primary} name="time-outline" size={30} />
+            <Text style={styles.emptyTitle}>Your word trail is empty</Text>
             <Text style={styles.emptyText}>
-              Search for a word on the Home/Search screen and it will appear here.
+              Search a word from Home and LexiTech will keep it here for your next study session.
             </Text>
           </View>
         ) : (
@@ -58,7 +59,7 @@ export function HistoryScreen() {
               accessibilityRole="button"
               onPress={handleClearHistory}
               style={({ pressed }) => [styles.clearButton, pressed && styles.pressed]}>
-              <Ionicons color="#9f1d12" name="trash-outline" size={18} />
+              <Ionicons color={AppColors.danger} name="trash-outline" size={18} />
               <Text style={styles.clearText}>Clear history</Text>
             </Pressable>
 
@@ -68,9 +69,9 @@ export function HistoryScreen() {
                 key={word}
                 onPress={() => handleSelectWord(word)}
                 style={({ pressed }) => [styles.historyItem, pressed && styles.pressed]}>
-                <Ionicons color="#2457d6" name="book-outline" size={20} />
+                <Ionicons color={AppColors.primary} name="book-outline" size={20} />
                 <Text style={styles.historyWord}>{word}</Text>
-                <Ionicons color="#8b95a7" name="chevron-forward" size={18} />
+                <Ionicons color={AppColors.textSecondary} name="chevron-forward" size={18} />
               </Pressable>
             ))}
           </View>
@@ -83,7 +84,7 @@ export function HistoryScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f4f7fb',
+    backgroundColor: AppColors.background,
   },
   content: {
     alignSelf: 'center',
@@ -96,36 +97,36 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   eyebrow: {
-    color: '#2457d6',
+    color: AppColors.primary,
     fontSize: 13,
     fontWeight: '900',
     letterSpacing: 0,
     textTransform: 'uppercase',
   },
   title: {
-    color: '#121826',
+    color: AppColors.text,
     fontSize: 30,
     fontWeight: '900',
   },
   subtitle: {
-    color: '#526173',
+    color: AppColors.textSecondary,
     fontSize: 16,
     lineHeight: 24,
   },
   emptyState: {
     alignItems: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor: AppColors.card,
     borderRadius: 8,
     gap: 10,
     padding: 28,
   },
   emptyTitle: {
-    color: '#121826',
+    color: AppColors.text,
     fontSize: 20,
     fontWeight: '900',
   },
   emptyText: {
-    color: '#526173',
+    color: AppColors.textSecondary,
     fontSize: 15,
     lineHeight: 22,
     textAlign: 'center',
@@ -140,13 +141,13 @@ const styles = StyleSheet.create({
     gap: 8,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#ffc7c2',
-    backgroundColor: '#fff4f2',
+    borderColor: AppColors.dangerBorder,
+    backgroundColor: AppColors.dangerSoft,
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
   clearText: {
-    color: '#9f1d12',
+    color: AppColors.danger,
     fontWeight: '900',
   },
   historyItem: {
@@ -155,12 +156,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
     borderRadius: 8,
-    backgroundColor: '#ffffff',
+    backgroundColor: AppColors.card,
     paddingHorizontal: 16,
   },
   historyWord: {
     flex: 1,
-    color: '#121826',
+    color: AppColors.text,
     fontSize: 17,
     fontWeight: '800',
     textTransform: 'capitalize',

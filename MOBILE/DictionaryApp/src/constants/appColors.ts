@@ -1,0 +1,15 @@
+export const AppColors = {
+  primary: '#4338CA',
+  accent: '#8B5CF6',
+  background: '#F8FAFC',
+  card: '#FFFFFF',
+  text: '#111827',
+  textSecondary: '#6B7280',
+  onPrimary: '#FFFFFF',
+  border: '#E5E7EB',
+  primarySoft: '#EEF2FF',
+  accentSoft: '#F5F3FF',
+  danger: '#B91C1C',
+  dangerSoft: '#FEF2F2',
+  dangerBorder: '#FECACA',
+} as const;

@@ -3,6 +3,7 @@ import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { AppColors } from '@/constants/appColors';
 import { DictionaryEntry } from '@/types/dictionary';
 import { getDisplayPhonetic, getFirstAudioUrl } from '@/utils/audioUtils';
 
@@ -87,7 +88,7 @@ export function WordDetails({ entries }: WordDetailsProps) {
                 (pressed || isAudioLoading) && styles.audioButtonPressed,
               ]}>
               <Ionicons
-                color="#2457d6"
+                color={AppColors.primary}
                 name={isAudioPlaying ? 'pause' : isAudioLoading ? 'hourglass-outline' : 'volume-high'}
                 size={22}
               />
@@ -99,7 +100,7 @@ export function WordDetails({ entries }: WordDetailsProps) {
                 accessibilityRole="button"
                 onPress={stopPronunciation}
                 style={({ pressed }) => [styles.stopButton, pressed && styles.audioButtonPressed]}>
-                <Ionicons color="#9f1d12" name="stop" size={18} />
+                <Ionicons color={AppColors.danger} name="stop" size={18} />
               </Pressable>
             ) : null}
           </View>
@@ -137,7 +138,7 @@ export function WordDetails({ entries }: WordDetailsProps) {
 const styles = StyleSheet.create({
   container: {
     borderRadius: 8,
-    backgroundColor: '#ffffff',
+    backgroundColor: AppColors.card,
     padding: 20,
     gap: 20,
   },
@@ -152,13 +153,13 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   word: {
-    color: '#121826',
+    color: AppColors.text,
     fontSize: 34,
     fontWeight: '900',
     textTransform: 'capitalize',
   },
   phonetic: {
-    color: '#2457d6',
+    color: AppColors.accent,
     fontSize: 17,
     fontWeight: '700',
   },
@@ -171,7 +172,7 @@ const styles = StyleSheet.create({
     width: 46,
     height: 42,
     borderRadius: 8,
-    backgroundColor: '#ecf4ff',
+    backgroundColor: AppColors.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -182,12 +183,12 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 8,
-    backgroundColor: '#fff4f2',
+    backgroundColor: AppColors.dangerSoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
   audioError: {
-    color: '#9f1d12',
+    color: AppColors.danger,
     fontSize: 14,
     fontWeight: '700',
   },
@@ -197,8 +198,8 @@ const styles = StyleSheet.create({
   partOfSpeech: {
     alignSelf: 'flex-start',
     borderRadius: 8,
-    backgroundColor: '#e8f7ef',
-    color: '#116b45',
+    backgroundColor: AppColors.accentSoft,
+    color: AppColors.accent,
     overflow: 'hidden',
     paddingHorizontal: 10,
     paddingVertical: 5,
@@ -214,8 +215,8 @@ const styles = StyleSheet.create({
     width: 26,
     height: 26,
     borderRadius: 8,
-    backgroundColor: '#edf1f7',
-    color: '#4f5f76',
+    backgroundColor: AppColors.primarySoft,
+    color: AppColors.primary,
     fontSize: 13,
     fontWeight: '800',
     textAlign: 'center',
@@ -226,14 +227,14 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   definitionText: {
-    color: '#202938',
+    color: AppColors.text,
     fontSize: 16,
     lineHeight: 24,
   },
   exampleText: {
     borderLeftWidth: 3,
-    borderLeftColor: '#c9d8ff',
-    color: '#4f5f76',
+    borderLeftColor: AppColors.accent,
+    color: AppColors.textSecondary,
     fontSize: 15,
     fontStyle: 'italic',
     lineHeight: 22,

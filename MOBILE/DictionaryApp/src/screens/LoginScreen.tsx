@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppColors } from '@/constants/appColors';
 import { useAuth } from '@/context/AuthContext';
 
 export function LoginScreen() {
@@ -41,8 +42,10 @@ export function LoginScreen() {
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.eyebrow}>LexiTech Dictionary</Text>
-          <Text style={styles.title}>Welcome back</Text>
-          <Text style={styles.subtitle}>Log in to access your personal search history.</Text>
+          <Text style={styles.title}>Your words are waiting.</Text>
+          <Text style={styles.subtitle}>
+            Log in with your class account and pick up your vocabulary journey right where you left it.
+          </Text>
         </View>
 
         <View style={styles.card}>
@@ -51,14 +54,14 @@ export function LoginScreen() {
             autoCorrect={false}
             onChangeText={setUsername}
             placeholder="Username"
-            placeholderTextColor="#8b95a7"
+            placeholderTextColor={AppColors.textSecondary}
             style={styles.input}
             value={username}
           />
           <TextInput
             onChangeText={setPassword}
             placeholder="Password"
-            placeholderTextColor="#8b95a7"
+            placeholderTextColor={AppColors.textSecondary}
             secureTextEntry
             style={styles.input}
             value={password}
@@ -74,7 +77,7 @@ export function LoginScreen() {
         </View>
 
         <Text style={styles.footerText}>
-          Local demo access only. Use one of the authorized school project accounts.
+          Local demo access only. Use your assigned LexiTech account to continue.
         </Text>
       </View>
     </SafeAreaView>
@@ -84,7 +87,7 @@ export function LoginScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f4f7fb',
+    backgroundColor: AppColors.background,
   },
   container: {
     flex: 1,
@@ -99,24 +102,24 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   eyebrow: {
-    color: '#2457d6',
+    color: AppColors.primary,
     fontSize: 13,
     fontWeight: '900',
     letterSpacing: 0,
     textTransform: 'uppercase',
   },
   title: {
-    color: '#121826',
+    color: AppColors.text,
     fontSize: 34,
     fontWeight: '900',
   },
   subtitle: {
-    color: '#526173',
+    color: AppColors.textSecondary,
     fontSize: 16,
     lineHeight: 24,
   },
   card: {
-    backgroundColor: '#ffffff',
+    backgroundColor: AppColors.card,
     borderRadius: 8,
     padding: 18,
     gap: 12,
@@ -125,20 +128,20 @@ const styles = StyleSheet.create({
     minHeight: 52,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#d7dde8',
+    borderColor: AppColors.border,
     paddingHorizontal: 16,
-    color: '#121826',
+    color: AppColors.text,
     fontSize: 16,
   },
   message: {
-    color: '#9f1d12',
+    color: AppColors.danger,
     fontSize: 14,
     lineHeight: 20,
   },
   button: {
     minHeight: 52,
     borderRadius: 8,
-    backgroundColor: '#2457d6',
+    backgroundColor: AppColors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -146,12 +149,12 @@ const styles = StyleSheet.create({
     opacity: 0.72,
   },
   buttonText: {
-    color: '#ffffff',
+    color: AppColors.onPrimary,
     fontSize: 16,
     fontWeight: '800',
   },
   footerText: {
-    color: '#526173',
+    color: AppColors.textSecondary,
     textAlign: 'center',
     fontSize: 15,
   },

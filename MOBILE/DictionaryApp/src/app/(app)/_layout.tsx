@@ -1,15 +1,18 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Drawer } from 'expo-router/drawer';
 
+import { AppColors } from '@/constants/appColors';
+
 export default function AppDrawerLayout() {
   return (
     <Drawer
       screenOptions={{
-        drawerActiveTintColor: '#2457d6',
-        drawerInactiveTintColor: '#526173',
+        drawerActiveTintColor: AppColors.primary,
+        drawerInactiveTintColor: AppColors.textSecondary,
         drawerLabelStyle: { fontWeight: '800' },
-        headerStyle: { backgroundColor: '#ffffff' },
-        headerTintColor: '#121826',
+        headerStyle: { backgroundColor: AppColors.card },
+        headerTintColor: AppColors.text,
+        drawerStyle: { backgroundColor: AppColors.card },
       }}>
       <Drawer.Screen
         name="index"

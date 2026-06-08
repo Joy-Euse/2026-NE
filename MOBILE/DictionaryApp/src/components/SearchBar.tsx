@@ -1,5 +1,7 @@
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { AppColors } from '@/constants/appColors';
+
 type SearchBarProps = {
   value: string;
   onChangeText: (value: string) => void;
@@ -16,8 +18,8 @@ export function SearchBar({ value, onChangeText, onSubmit, disabled }: SearchBar
         editable={!disabled}
         onChangeText={onChangeText}
         onSubmitEditing={onSubmit}
-        placeholder="Search for a word"
-        placeholderTextColor="#8b95a7"
+        placeholder="Type a word to explore"
+        placeholderTextColor={AppColors.textSecondary}
         returnKeyType="search"
         style={styles.input}
         value={value}
@@ -30,7 +32,7 @@ export function SearchBar({ value, onChangeText, onSubmit, disabled }: SearchBar
           styles.button,
           (pressed || disabled) && styles.buttonPressed,
         ]}>
-        <Text style={styles.buttonText}>Search</Text>
+        <Text style={styles.buttonText}>Explore</Text>
       </Pressable>
     </View>
   );
@@ -46,16 +48,16 @@ const styles = StyleSheet.create({
     minHeight: 52,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#d7dde8',
-    backgroundColor: '#ffffff',
+    borderColor: AppColors.border,
+    backgroundColor: AppColors.card,
     paddingHorizontal: 16,
-    color: '#121826',
+    color: AppColors.text,
     fontSize: 16,
   },
   button: {
     minHeight: 52,
     borderRadius: 8,
-    backgroundColor: '#2457d6',
+    backgroundColor: AppColors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 18,
@@ -64,7 +66,7 @@ const styles = StyleSheet.create({
     opacity: 0.72,
   },
   buttonText: {
-    color: '#ffffff',
+    color: AppColors.onPrimary,
     fontSize: 16,
     fontWeight: '700',
   },
