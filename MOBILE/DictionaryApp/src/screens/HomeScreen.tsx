@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { isAxiosError } from 'axios';
 import { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -49,9 +49,9 @@ export default function HomeScreen() {
       setHistory(await saveSearchWord(trimmedWord));
     } catch (error) {
       setWordEntries([]);
-      if (axios.isAxiosError(error) && error.response?.status === 404) {
+      if (isAxiosError(error) && error.response?.status === 404) {
         setErrorMessage('Word not found. Please try another word.');
-      } else if (axios.isAxiosError(error)) {
+      } else if (isAxiosError(error)) {
         setErrorMessage('Network error. Check your connection and try again.');
       } else {
         setErrorMessage('Unable to read this dictionary response. Please try another word.');

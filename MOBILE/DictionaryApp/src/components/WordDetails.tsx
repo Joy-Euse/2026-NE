@@ -60,7 +60,7 @@ export function WordDetails({ entries }: WordDetailsProps) {
                     {definition.definition || 'No definition available.'}
                   </Text>
                   {definition.example ? (
-                    <Text style={styles.exampleText}>"{definition.example}"</Text>
+                    <Text style={styles.exampleText}>{`"${definition.example}"`}</Text>
                   ) : null}
                 </View>
               </View>
