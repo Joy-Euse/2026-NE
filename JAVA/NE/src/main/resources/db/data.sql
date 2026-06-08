@@ -7,14 +7,17 @@ VALUES
     ('Alice Uwase', '1199880012345678', 'alice@example.com', '0788100001', 'KG 5 Ave, Kigali', 'ACTIVE', NOW(), NOW(), 'system', 'system'),
     ('Bob Niyonzima', '1198770023456789', 'bob@example.com', '0788100002', 'KN 3 Rd, Kigali', 'ACTIVE', NOW(), NOW(), 'system', 'system'),
     ('Claire Mutesi', '1200110034567890', 'claire@example.com', '0788100003', 'KK 15 St, Kigali', 'ACTIVE', NOW(), NOW(), 'system', 'system'),
-    ('David Hakizimana', '1197660045678901', 'david@example.com', '0788100004', 'Musanze, Northern Province', 'INACTIVE', NOW(), NOW(), 'system', 'system')
+    ('David Hakizimana', '1197660045678901', 'david@example.com', '0788100004', 'Musanze, Northern Province', 'INACTIVE', NOW(), NOW(), 'system', 'system'),
+    ('UWAMAHORO Bonaventure', '1197660045678902', 'uwamahorobonaventure@gmail.com', '0788100002', 'Nyabihu, Western Province', 'ACTIVE', NOW(), NOW(), 'system', 'system')
 ON CONFLICT (national_id) DO NOTHING;
 
 INSERT INTO app_users (full_name, email, phone_number, password, status, role, email_verified, customer_id, created_at, updated_at, created_by, updated_by)
 VALUES
     ('System Admin', 'admin@utility.test', '0780000001', '$2a$12$YYqo18V.1idOFIbCaQzW4uTjCGlH.2tJ3uwwv3TAaUOPQem3jXP3G', 'ACTIVE', 'ROLE_ADMIN', TRUE, NULL, NOW(), NOW(), 'system', 'system'),
     ('Meter Operator', 'operator@utility.test', '0780000002', '$2a$12$YYqo18V.1idOFIbCaQzW4uTjCGlH.2tJ3uwwv3TAaUOPQem3jXP3G', 'ACTIVE', 'ROLE_OPERATOR', TRUE, NULL, NOW(), NOW(), 'system', 'system'),
-    ('Finance Officer', 'finance@utility.test', '0780000003', '$2a$12$YYqo18V.1idOFIbCaQzW4uTjCGlH.2tJ3uwwv3TAaUOPQem3jXP3G', 'ACTIVE', 'ROLE_FINANCE', TRUE, NULL, NOW(), NOW(), 'system', 'system')
+    ('Finance Officer', 'finance@utility.test', '0780000003', '$2a$12$YYqo18V.1idOFIbCaQzW4uTjCGlH.2tJ3uwwv3TAaUOPQem3jXP3G', 'ACTIVE', 'ROLE_FINANCE', TRUE, NULL, NOW(), NOW(), 'system', 'system'),
+    ('UWAMAHORO Bonaventure', 'uwamahorobonaventure@gmail.com', '0788100002', '$2a$12$YYqo18V.1idOFIbCaQzW4uTjCGlH.2tJ3uwwv3TAaUOPQem3jXP3G', 'ACTIVE', 'ROLE_CUSTOMER', TRUE, NULL, NOW(), NOW(), 'system', 'system')
+
 ON CONFLICT (email) DO UPDATE
 SET password = EXCLUDED.password,
     status = EXCLUDED.status,
