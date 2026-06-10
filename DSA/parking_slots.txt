@@ -1,0 +1,2 @@
+Slot_ID Vehicle_Type Zone Status
+1 Motorcycle "west" Available

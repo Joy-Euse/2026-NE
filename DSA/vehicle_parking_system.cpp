@@ -254,6 +254,12 @@ public:
         return status;
     }
 
+    void updateDetails(string newId, VehicleType newType, string newZone) {
+        slotId = newId;
+        supportedType = newType;
+        zone = newZone;
+    }
+
     void occupy() {
         status = SlotStatus::OCCUPIED;
     }
@@ -450,6 +456,83 @@ public:
         slots.push_back(ParkingSlot(slotId, type, zone));
 
         cout << "Parking slot configured successfully.\n";
+    }
+
+    void updateParkingSlot() {
+        cout << "\n";
+        printLine('#', 60);
+        cout << "UPDATE PARKING SLOT\n";
+        printLine('#', 60);
+
+        if (slots.empty()) {
+            cout << "No parking slots configured.\n";
+            return;
+        }
+
+        string currentSlotId = getValidSlotId("Enter slot ID to update: ");
+        int slotIndex = findSlotIndex(currentSlotId);
+
+        if (slotIndex == -1) {
+            cout << "Parking slot not found.\n";
+            return;
+        }
+
+        if (slots[slotIndex].getStatus() == SlotStatus::OCCUPIED) {
+            cout << "Occupied slots cannot be updated. Handle vehicle exit first.\n";
+            return;
+        }
+
+        cout << "\nCurrent slot details:\n";
+        printLine('-', 70);
+        cout << left << setw(15) << "Slot ID"
+             << setw(15) << "Type"
+             << setw(20) << "Zone"
+             << setw(15) << "Status" << endl;
+        printLine('-', 70);
+        slots[slotIndex].display();
+
+        string newSlotId = getValidSlotId("Enter new slot ID: ");
+
+        if (newSlotId != currentSlotId && slotExists(newSlotId)) {
+            cout << "New Slot ID already exists.\n";
+            return;
+        }
+
+        VehicleType newType = chooseVehicleType();
+        string newZone = getValidZone("Enter new zone name: ");
+
+        slots[slotIndex].updateDetails(newSlotId, newType, newZone);
+
+        cout << "Parking slot updated successfully.\n";
+    }
+
+    void deleteParkingSlot() {
+        cout << "\n";
+        printLine('#', 60);
+        cout << "DELETE PARKING SLOT\n";
+        printLine('#', 60);
+
+        if (slots.empty()) {
+            cout << "No parking slots configured.\n";
+            return;
+        }
+
+        string slotId = getValidSlotId("Enter slot ID to delete: ");
+        int slotIndex = findSlotIndex(slotId);
+
+        if (slotIndex == -1) {
+            cout << "Parking slot not found.\n";
+            return;
+        }
+
+        if (slots[slotIndex].getStatus() == SlotStatus::OCCUPIED) {
+            cout << "Occupied slots cannot be deleted. Handle vehicle exit first.\n";
+            return;
+        }
+
+        slots.erase(slots.begin() + slotIndex);
+
+        cout << "Parking slot deleted successfully.\n";
     }
 
     void registerVehicleEntry() {
@@ -761,11 +844,6 @@ void welcomeScreen() {
     cout << "          . Parking History and Daily Revenue Reports\n";
     cout << "          . File Saving for Slots, History and Revenue\n";
 
-    cout << "\n";
-    printLine('=', 70);
-    cout << "        Developed by Joyeuse using C++ and Data Structures & Algorithms\n";
-    printLine('=', 70);
-
     cout << "\nPress Enter to continue...";
     cin.get();
 }
@@ -780,17 +858,19 @@ void displayMenu() {
     cout << "  @@@ TASKS @@@\n";
     cout << "  ------------------------------------------------------------\n";
     cout << "  1.  Configure parking slot\n";
-    cout << "  2.  Register vehicle entry\n";
-    cout << "  3.  Handle vehicle exit and payment\n";
-    cout << "  4.  Update parking price\n";
-    cout << "  5.  Display all parking slots\n";
-    cout << "  6.  Display available slots\n";
-    cout << "  7.  Display currently parked vehicles\n";
-    cout << "  8.  Display vehicle parking history\n";
-    cout << "  9.  Display daily revenue\n";
-    cout << "  10. Display current parking rates\n";
-    cout << "  11. Save data to files\n";
-    cout << "  12. Exit\n";
+    cout << "  2.  Update parking slot\n";
+    cout << "  3.  Delete parking slot\n";
+    cout << "  4.  Register vehicle entry\n";
+    cout << "  5.  Handle vehicle exit and payment\n";
+    cout << "  6.  Update parking price\n";
+    cout << "  7.  Display all parking slots\n";
+    cout << "  8.  Display available slots\n";
+    cout << "  9.  Display currently parked vehicles\n";
+    cout << "  10. Display vehicle parking history\n";
+    cout << "  11. Display daily revenue\n";
+    cout << "  12. Display current parking rates\n";
+    cout << "  13. Save data to files\n";
+    cout << "  14. Exit\n";
 
     printLine('=', 70);
 }
@@ -803,7 +883,7 @@ int main() {
     while (true) {
         displayMenu();
 
-        int choice = getValidInt("Enter your choice: ", 1, 12);
+        int choice = getValidInt("Enter your choice: ", 1, 14);
 
         switch (choice) {
             case 1:
@@ -811,46 +891,54 @@ int main() {
                 break;
 
             case 2:
-                system.registerVehicleEntry();
+                system.updateParkingSlot();
                 break;
 
             case 3:
-                system.handleVehicleExit();
+                system.deleteParkingSlot();
                 break;
 
             case 4:
-                system.updateParkingRate();
+                system.registerVehicleEntry();
                 break;
 
             case 5:
-                system.displaySlots();
+                system.handleVehicleExit();
                 break;
 
             case 6:
-                system.displayAvailableSlots();
+                system.updateParkingRate();
                 break;
 
             case 7:
-                system.displayParkedVehicles();
+                system.displaySlots();
                 break;
 
             case 8:
-                system.displayHistory();
+                system.displayAvailableSlots();
                 break;
 
             case 9:
-                system.displayDailyRevenue();
+                system.displayParkedVehicles();
                 break;
 
             case 10:
-                system.displayRates();
+                system.displayHistory();
                 break;
 
             case 11:
-                system.saveAllDataToFiles();
+                system.displayDailyRevenue();
                 break;
 
             case 12:
+                system.displayRates();
+                break;
+
+            case 13:
+                system.saveAllDataToFiles();
+                break;
+
+            case 14:
                 system.saveAllDataToFiles();
                 cout << "\n";
                 printLine('*', 70);
