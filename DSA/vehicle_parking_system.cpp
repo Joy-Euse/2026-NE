@@ -832,17 +832,9 @@ void welcomeScreen() {
     cout << "\n\n";
     printLine('*', 70);
     cout << "*******                                                        *******\n";
-    cout << "*******        WELCOME TO SMART PARKING SYSTEM                 *******\n";
+    cout << "*******        WELCOME TO OUR SMART PARKING SYSTEM             *******\n";
     cout << "*******                                                        *******\n";
     printLine('*', 70);
-
-    cout << "\n";
-    cout << "        @ Kigali City Smart Parking Management System @\n";
-    cout << "          . Creating Slots\n";
-    cout << "          . Vehicle Entry and Exit Recording\n";
-    cout << "          . Parking Fee Calculation\n";
-    cout << "          . Parking History and Daily Revenue Reports\n";
-    cout << "          . File Saving for Slots, History and Revenue\n";
 
     cout << "\nPress Enter to continue...";
     cin.get();
