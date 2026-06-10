@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <unordered_map>
+#include <fstream>
 #include <iomanip>
 #include <limits>
 #include <regex>
@@ -9,56 +10,63 @@
 
 using namespace std;
 
+// declaring available vehicle types
 enum class VehicleType {
     MOTORCYCLE = 1,
     CAR = 2,
     TRUCK = 3
 };
 
+// declaring available slots status
 enum class SlotStatus {
     AVAILABLE,
     OCCUPIED
 };
 
+// validation of input texts
+string trim(string text) {
+    while (!text.empty() && isspace(text.front())) text.erase(text.begin());
+    while (!text.empty() && isspace(text.back())) text.pop_back();
+    return text;
+}
+
+// changing available texts to upercase
 string toUpperCase(string text) {
     transform(text.begin(), text.end(), text.begin(), ::toupper);
     return text;
 }
 
-string trim(string text) {
-    while (!text.empty() && isspace(text.front())) {
-        text.erase(text.begin());
-    }
 
-    while (!text.empty() && isspace(text.back())) {
-        text.pop_back();
-    }
-
-    return text;
-}
-
+// Clearing inputs just in case
 void clearInput() {
     cin.clear();
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 }
 
+
+// = to show end or beginning of a line
+void printLine(char symbol = '=', int length = 70) {
+    for (int i = 0; i < length; i++) cout << symbol;
+    cout << endl;
+}
+
+// changing available vehicle types to strings 
 string vehicleTypeToString(VehicleType type) {
     switch (type) {
-        case VehicleType::MOTORCYCLE:
-            return "Motorcycle";
-        case VehicleType::CAR:
-            return "Car";
-        case VehicleType::TRUCK:
-            return "Truck";
-        default:
-            return "Unknown";
+        case VehicleType::MOTORCYCLE: return "Motorcycle";
+        case VehicleType::CAR: return "Car";
+        case VehicleType::TRUCK: return "Truck";
+        default: return "Unknown";
     }
 }
 
+// changing the slot stauses to strings
 string statusToString(SlotStatus status) {
     return status == SlotStatus::AVAILABLE ? "Available" : "Occupied";
 }
 
+
+// Validation of numbers a user might input
 int getValidInt(string message, int minValue, int maxValue) {
     int value;
 
@@ -77,6 +85,7 @@ int getValidInt(string message, int minValue, int maxValue) {
     }
 }
 
+// validation of input in case we get negative to minimum value
 double getValidDouble(string message, double minValue) {
     double value;
 
@@ -93,6 +102,7 @@ double getValidDouble(string message, double minValue) {
     }
 }
 
+// Validating non empty texts
 string getNonEmptyText(string message) {
     string value;
 
@@ -101,54 +111,74 @@ string getNonEmptyText(string message) {
         getline(cin, value);
         value = trim(value);
 
-        if (!value.empty()) {
-            return value;
-        }
+        if (!value.empty()) return value;
 
         cout << "Input cannot be empty. Please try again.\n";
     }
 }
 
+// checking for valid numeric inputs between 0-9 others are rejected
+bool isValidNumericSlotId(string slotId) {
+    regex pattern("^[0-9]+$");
+    return regex_match(slotId, pattern);
+}
+
+string getValidSlotId(string message) {
+    string slotId;
+
+    while (true) {
+        slotId = getNonEmptyText(message);
+
+        if (isValidNumericSlotId(slotId)) return slotId;
+
+        cout << "Invalid Slot ID. Slot ID must contain numbers only.\n";
+    }
+}
+
+// a valida zone name structure
 bool isValidZoneName(string zone) {
     regex pattern("^[A-Za-z]+([ -][A-Za-z]+)*$");
     return regex_match(zone, pattern);
 }
 
+// in case we have an invalid zone name
 string getValidZone(string message) {
     string zone;
 
     while (true) {
         zone = getNonEmptyText(message);
 
-        if (isValidZoneName(zone)) {
-            return zone;
-        }
+        if (isValidZoneName(zone)) return zone;
 
         cout << "Invalid zone. Use letters, spaces, or hyphens only.\n";
     }
 }
 
+// Pattern of a valid plate number
 bool isValidPlateNumber(string plate) {
     regex pattern("^[A-Za-z0-9-]+$");
     return regex_match(plate, pattern);
 }
 
+// validating a plate number
 string getValidPlateNumber(string message) {
     string plate;
 
     while (true) {
         plate = toUpperCase(getNonEmptyText(message));
 
-        if (isValidPlateNumber(plate)) {
-            return plate;
-        }
+        if (isValidPlateNumber(plate)) return plate;
 
         cout << "Invalid plate number. Use letters, numbers, or hyphens only.\n";
     }
 }
 
+// Choosing a vehicle type from the available types
 VehicleType chooseVehicleType() {
-    cout << "\nVehicle Types:\n";
+    cout << "\n";
+    printLine('-', 50);
+    cout << "Vehicle Types\n";
+    printLine('-', 50);
     cout << "1. Motorcycle\n";
     cout << "2. Car\n";
     cout << "3. Truck\n";
@@ -160,6 +190,7 @@ VehicleType chooseVehicleType() {
     return VehicleType::TRUCK;
 }
 
+// validating time input in the format of HH:MM and converting it to total minutes for easier calculations of money
 int getValidTimeInMinutes(string message) {
     int hour, minute;
     char colon;
@@ -180,6 +211,18 @@ int getValidTimeInMinutes(string message) {
     }
 }
 
+// Formating time
+string formatTime(int minutes) {
+    int hour = minutes / 60;
+    int minute = minutes % 60;
+
+    string h = hour < 10 ? "0" + to_string(hour) : to_string(hour);
+    string m = minute < 10 ? "0" + to_string(minute) : to_string(minute);
+
+    return h + ":" + m;
+}
+
+// Parking slot have the following info
 class ParkingSlot {
 private:
     string slotId;
@@ -227,6 +270,7 @@ public:
     }
 };
 
+// vehicles class
 class Vehicle {
 private:
     string plateNumber;
@@ -235,6 +279,8 @@ private:
     string allocatedSlotId;
 
 public:
+    Vehicle() {}
+
     Vehicle(string plate, VehicleType vehicleType, int time, string slotId) {
         plateNumber = plate;
         type = vehicleType;
@@ -259,6 +305,7 @@ public:
     }
 };
 
+// a parking record class to keep track of the history of parked vehicles and their fees
 class ParkingRecord {
 private:
     string plateNumber;
@@ -289,15 +336,38 @@ public:
         return plateNumber;
     }
 
+    string getSlotId() const {
+        return slotId;
+    }
+
+    VehicleType getVehicleType() const {
+        return vehicleType;
+    }
+
+    int getEntryTime() const {
+        return entryTime;
+    }
+
+    int getExitTime() const {
+        return exitTime;
+    }
+
+    int getChargedHours() const {
+        return chargedHours;
+    }
+
     void display() const {
         cout << left << setw(15) << plateNumber
              << setw(15) << vehicleTypeToString(vehicleType)
              << setw(15) << slotId
+             << setw(15) << formatTime(entryTime)
+             << setw(15) << formatTime(exitTime)
              << setw(15) << chargedHours
-             << setw(15) << fixed << setprecision(0) << fee << " RWF" << endl;
+             << fixed << setprecision(0) << fee << " RWF" << endl;
     }
 };
 
+// to manage parking rates for different vehicle types
 class TariffManager {
 private:
     unordered_map<string, double> rates;
@@ -318,12 +388,16 @@ public:
     }
 
     void displayRates() {
-        cout << "\nCurrent Parking Rates:\n";
+        cout << "\n";
+        printLine('$', 50);
+        cout << "CURRENT PARKING RATES\n";
+        printLine('$', 50);
         cout << "Motorcycle: " << rates["Motorcycle"] << " RWF/hour\n";
-        cout << "Car: " << rates["Car"] << " RWF/hour\n";
-        cout << "Truck: " << rates["Truck"] << " RWF/hour\n";
+        cout << "Car       : " << rates["Car"] << " RWF/hour\n";
+        cout << "Truck     : " << rates["Truck"] << " RWF/hour\n";
     }
 };
+
 
 class SmartParkingSystem {
 private:
@@ -334,18 +408,14 @@ private:
 
     bool slotExists(string slotId) {
         for (const ParkingSlot& slot : slots) {
-            if (toUpperCase(slot.getSlotId()) == toUpperCase(slotId)) {
-                return true;
-            }
+            if (slot.getSlotId() == slotId) return true;
         }
         return false;
     }
 
     int findSlotIndex(string slotId) {
         for (int i = 0; i < slots.size(); i++) {
-            if (toUpperCase(slots[i].getSlotId()) == toUpperCase(slotId)) {
-                return i;
-            }
+            if (slots[i].getSlotId() == slotId) return i;
         }
         return -1;
     }
@@ -362,10 +432,15 @@ private:
 
 public:
     void configureSlot() {
-        string slotId = toUpperCase(getNonEmptyText("Enter slot ID: "));
+        cout << "\n";
+        printLine('#', 60);
+        cout << "CONFIGURE PARKING SLOT\n";
+        printLine('#', 60);
+
+        string slotId = getValidSlotId("Enter slot ID: ");
 
         if (slotExists(slotId)) {
-            cout << "Slot ID already exists. Duplicate slots are not allowed.\n";
+            cout << "Slot ID already exists.\n";
             return;
         }
 
@@ -378,6 +453,11 @@ public:
     }
 
     void registerVehicleEntry() {
+        cout << "\n";
+        printLine('#', 60);
+        cout << "VEHICLE ENTRY REGISTRATION\n";
+        printLine('#', 60);
+
         if (slots.empty()) {
             cout << "No parking slots configured. Add slots first.\n";
             return;
@@ -414,6 +494,11 @@ public:
     }
 
     void handleVehicleExit() {
+        cout << "\n";
+        printLine('#', 60);
+        cout << "VEHICLE EXIT AND PAYMENT\n";
+        printLine('#', 60);
+
         if (activeVehicles.empty()) {
             cout << "No vehicles are currently parked.\n";
             return;
@@ -464,14 +549,20 @@ public:
         activeVehicles.erase(vehicleIterator);
 
         cout << "\nVehicle exited successfully.\n";
-        cout << "Duration: " << durationMinutes << " minutes\n";
+        cout << "Entry Time   : " << formatTime(vehicle.getEntryTime()) << endl;
+        cout << "Exit Time    : " << formatTime(exitTime) << endl;
+        cout << "Duration     : " << durationMinutes << " minutes\n";
         cout << "Charged Hours: " << chargedHours << endl;
-        cout << "Total Fee: " << fixed << setprecision(0) << fee << " RWF\n";
+        cout << "Total Fee    : " << fixed << setprecision(0) << fee << " RWF\n";
     }
 
     void updateParkingRate() {
-        VehicleType type = chooseVehicleType();
+        cout << "\n";
+        printLine('#', 60);
+        cout << "UPDATE PARKING PRICE\n";
+        printLine('#', 60);
 
+        VehicleType type = chooseVehicleType();
         double newRate = getValidDouble("Enter new hourly rate: ", 1);
 
         tariffManager.updateRate(type, newRate);
@@ -486,10 +577,12 @@ public:
         }
 
         cout << "\nParking Slots:\n";
+        printLine('-', 70);
         cout << left << setw(15) << "Slot ID"
              << setw(15) << "Type"
              << setw(20) << "Zone"
              << setw(15) << "Status" << endl;
+        printLine('-', 70);
 
         for (const ParkingSlot& slot : slots) {
             slot.display();
@@ -500,10 +593,12 @@ public:
         bool found = false;
 
         cout << "\nAvailable Slots:\n";
+        printLine('-', 70);
         cout << left << setw(15) << "Slot ID"
              << setw(15) << "Type"
              << setw(20) << "Zone"
              << setw(15) << "Status" << endl;
+        printLine('-', 70);
 
         for (const ParkingSlot& slot : slots) {
             if (slot.getStatus() == SlotStatus::AVAILABLE) {
@@ -512,9 +607,7 @@ public:
             }
         }
 
-        if (!found) {
-            cout << "No available slots.\n";
-        }
+        if (!found) cout << "No available slots.\n";
     }
 
     void displayParkedVehicles() {
@@ -524,10 +617,12 @@ public:
         }
 
         cout << "\nCurrently Parked Vehicles:\n";
+        printLine('-', 70);
         cout << left << setw(15) << "Plate"
              << setw(15) << "Type"
              << setw(15) << "Slot ID"
              << setw(15) << "Entry Time" << endl;
+        printLine('-', 70);
 
         for (const auto& pair : activeVehicles) {
             Vehicle v = pair.second;
@@ -535,7 +630,7 @@ public:
             cout << left << setw(15) << v.getPlateNumber()
                  << setw(15) << vehicleTypeToString(v.getType())
                  << setw(15) << v.getAllocatedSlotId()
-                 << setw(15) << v.getEntryTime() << " mins" << endl;
+                 << setw(15) << formatTime(v.getEntryTime()) << endl;
         }
     }
 
@@ -546,38 +641,109 @@ public:
         }
 
         cout << "\nParking History:\n";
+        printLine('-', 90);
         cout << left << setw(15) << "Plate"
              << setw(15) << "Type"
              << setw(15) << "Slot"
+             << setw(15) << "Entry"
+             << setw(15) << "Exit"
              << setw(15) << "Hours"
-             << setw(15) << "Fee" << endl;
+             << "Fee" << endl;
+        printLine('-', 90);
 
         for (const ParkingRecord& record : history) {
             record.display();
         }
     }
 
-    void displayDailyRevenue() {
+    double calculateDailyRevenue() {
         double total = 0;
 
         for (const ParkingRecord& record : history) {
             total += record.getFee();
         }
 
-        cout << "\nDaily Revenue: " << fixed << setprecision(0) << total << " RWF\n";
+        return total;
+    }
+
+    void displayDailyRevenue() {
+        cout << "\nDaily Revenue: "
+             << fixed << setprecision(0)
+             << calculateDailyRevenue() << " RWF\n";
     }
 
     void displayRates() {
         tariffManager.displayRates();
     }
-};
 
-void printLine(char symbol = '=', int length = 60) {
-    for (int i = 0; i < length; i++) {
-        cout << symbol;
+    void saveParkingSlotsToFile() {
+        ofstream file("parking_slots.txt");
+
+        if (!file) {
+            cout << "Error: Could not save parking_slots.txt\n";
+            return;
+        }
+
+        file << "Slot_ID Vehicle_Type Zone Status\n";
+
+        for (const ParkingSlot& slot : slots) {
+            file << slot.getSlotId() << " "
+                 << vehicleTypeToString(slot.getSupportedType()) << " "
+                 << "\"" << slot.getZone() << "\" "
+                 << statusToString(slot.getStatus()) << endl;
+        }
+
+        file.close();
     }
-    cout << endl;
-}
+
+    void saveParkingHistoryToFile() {
+        ofstream file("parking_history.txt");
+
+        if (!file) {
+            cout << "Error: Could not save parking_history.txt\n";
+            return;
+        }
+
+        file << "Plate Vehicle_Type Slot_ID Entry_Time Exit_Time Charged_Hours Fee_RWF\n";
+
+        for (const ParkingRecord& record : history) {
+            file << record.getPlateNumber() << " "
+                 << vehicleTypeToString(record.getVehicleType()) << " "
+                 << record.getSlotId() << " "
+                 << formatTime(record.getEntryTime()) << " "
+                 << formatTime(record.getExitTime()) << " "
+                 << record.getChargedHours() << " "
+                 << fixed << setprecision(0) << record.getFee() << endl;
+        }
+
+        file.close();
+    }
+
+    void saveRevenueToFile() {
+        ofstream file("daily_revenue.txt");
+
+        if (!file) {
+            cout << "Error: Could not save daily_revenue.txt\n";
+            return;
+        }
+
+        file << "Daily_Revenue_RWF\n";
+        file << fixed << setprecision(0) << calculateDailyRevenue() << endl;
+
+        file.close();
+    }
+
+    void saveAllDataToFiles() {
+        saveParkingSlotsToFile();
+        saveParkingHistoryToFile();
+        saveRevenueToFile();
+
+        cout << "\nData saved successfully into:\n";
+        cout << "1. parking_slots.txt\n";
+        cout << "2. parking_history.txt\n";
+        cout << "3. daily_revenue.txt\n";
+    }
+};
 
 void welcomeScreen() {
     cout << "\n\n";
@@ -589,14 +755,15 @@ void welcomeScreen() {
 
     cout << "\n";
     cout << "        @ Kigali City Smart Parking Management System @\n";
-    cout << "        # Real-time Slot Allocation\n";
-    cout << "        # Vehicle Entry and Exit Tracking\n";
-    cout << "        # Automatic Parking Fee Calculation\n";
-    cout << "        # Daily Revenue and Parking History Reports\n";
+    cout << "          . Creating Slots\n";
+    cout << "          . Vehicle Entry and Exit Recording\n";
+    cout << "          . Parking Fee Calculation\n";
+    cout << "          . Parking History and Daily Revenue Reports\n";
+    cout << "          . File Saving for Slots, History and Revenue\n";
 
     cout << "\n";
     printLine('=', 70);
-    cout << "        Developed using C++ and Data Structures & Algorithms\n";
+    cout << "        Developed by Joyeuse using C++ and Data Structures & Algorithms\n";
     printLine('=', 70);
 
     cout << "\nPress Enter to continue...";
@@ -610,30 +777,24 @@ void displayMenu() {
     printLine('=', 70);
 
     cout << "\n";
-    cout << "  @@@ MAIN MENU @@@\n";
+    cout << "  @@@ TASKS @@@\n";
     cout << "  ------------------------------------------------------------\n";
     cout << "  1.  Configure parking slot\n";
     cout << "  2.  Register vehicle entry\n";
     cout << "  3.  Handle vehicle exit and payment\n";
     cout << "  4.  Update parking price\n";
-
-    cout << "\n";
-    cout << "  ### REPORTS AND RECORDS ###\n";
-    cout << "  ------------------------------------------------------------\n";
     cout << "  5.  Display all parking slots\n";
     cout << "  6.  Display available slots\n";
     cout << "  7.  Display currently parked vehicles\n";
     cout << "  8.  Display vehicle parking history\n";
     cout << "  9.  Display daily revenue\n";
     cout << "  10. Display current parking rates\n";
-
-    cout << "\n";
-    cout << "  $$$ SYSTEM OPTION $$$\n";
-    cout << "  ------------------------------------------------------------\n";
-    cout << "  11. Exit\n";
+    cout << "  11. Save data to files\n";
+    cout << "  12. Exit\n";
 
     printLine('=', 70);
 }
+
 int main() {
     SmartParkingSystem system;
 
@@ -642,45 +803,60 @@ int main() {
     while (true) {
         displayMenu();
 
-        int choice = getValidInt("Enter your choice: ", 1, 11);
+        int choice = getValidInt("Enter your choice: ", 1, 12);
 
         switch (choice) {
             case 1:
                 system.configureSlot();
                 break;
+
             case 2:
                 system.registerVehicleEntry();
                 break;
+
             case 3:
                 system.handleVehicleExit();
                 break;
+
             case 4:
                 system.updateParkingRate();
                 break;
+
             case 5:
                 system.displaySlots();
                 break;
+
             case 6:
                 system.displayAvailableSlots();
                 break;
+
             case 7:
                 system.displayParkedVehicles();
                 break;
+
             case 8:
                 system.displayHistory();
                 break;
+
             case 9:
                 system.displayDailyRevenue();
                 break;
+
             case 10:
                 system.displayRates();
                 break;
+
             case 11:
+                system.saveAllDataToFiles();
+                break;
+
+            case 12:
+                system.saveAllDataToFiles();
                 cout << "\n";
-                printLine('*', 60);
+                printLine('*', 70);
                 cout << "     Thank you for using Smart Parking Management System!\n";
                 cout << "     System closed successfully.\n";
-                printLine('*', 60);
+                printLine('*', 70);
                 return 0;
         }
     }
