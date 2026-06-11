@@ -1,0 +1,1 @@
+Plate Vehicle_Type Slot_ID Entry_Time Exit_Time Charged_Hours Fee_RWF
