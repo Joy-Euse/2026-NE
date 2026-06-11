@@ -56,13 +56,29 @@ function normalizeHistoryItem(item: unknown): SearchHistoryItem | null {
   };
 }
 
+function dedupeHistoryItems(history: SearchHistoryItem[]): SearchHistoryItem[] {
+  const seenWords = new Set<string>();
+
+  return history.filter((item) => {
+    const normalizedWord = item.word.trim().toLowerCase();
+    if (!normalizedWord || seenWords.has(normalizedWord)) {
+      return false;
+    }
+
+    seenWords.add(normalizedWord);
+    return true;
+  });
+}
+
 export async function getSearchHistory(userId: string): Promise<SearchHistoryItem[]> {
   try {
     const storedHistory = await AsyncStorage.getItem(historyKeyForUser(userId));
     const parsedHistory = storedHistory ? JSON.parse(storedHistory) : [];
-    return Array.isArray(parsedHistory)
+    const normalizedHistory = Array.isArray(parsedHistory)
       ? parsedHistory.map(normalizeHistoryItem).filter((item): item is SearchHistoryItem => !!item)
       : [];
+
+    return dedupeHistoryItems(normalizedHistory);
   } catch {
     return [];
   }
@@ -89,10 +105,17 @@ export async function saveSearchAttempt(
     status,
     searchedAt: new Date().toISOString(),
   };
+<<<<<<< HEAD
   const restHistory = currentHistory.filter(
     (item) => normalizeHistoryWord(item.word) !== cleanedWord,
   );
   const nextHistory = [nextItem, ...restHistory];
+=======
+  const historyWithoutWord = currentHistory.filter(
+    (item) => item.word.trim().toLowerCase() !== cleanedWord,
+  );
+  const nextHistory = [newItem, ...historyWithoutWord];
+>>>>>>> 8ce0a777a9afa46540274f75e09d65d514d0bd25
 
   await AsyncStorage.setItem(historyKeyForUser(userId), JSON.stringify(nextHistory));
   return nextHistory;
