@@ -2,13 +2,14 @@
 vision_node.py
 Simulated Vision Node for Distributed Vision-Control System.
 Tracks face and publishes movement commands via MQTT.
-Topic: vision/team213/movement
+Topic: vision/Joyeuse/movement
 """
 
 import time
 import argparse
 import cv2
 import json
+import csv
 import numpy as np
 import paho.mqtt.client as mqtt
 from pathlib import Path
@@ -24,11 +25,12 @@ from src.recognize import ArcFaceEmbedderONNX, FaceDBMatcher, load_db_npz
 from src.face_locking import FaceLockSystem
 
 # Configuration
-DEFAULT_BROKER = "157.173.101.159" 
+DEFAULT_BROKER = "broker.hivemq.com"
 PORT = 1883
-TEAM_ID = "team213"
+TEAM_ID = "Joyeuse"
 TOPIC_MOVEMENT = f"vision/{TEAM_ID}/movement"
 TOPIC_HEARTBEAT = f"vision/{TEAM_ID}/heartbeat"
+CAMERA_INDEX = 1
 
 class VisionNode:
     def __init__(self, broker, port, target_name):
@@ -60,7 +62,31 @@ class VisionNode:
         self.last_heartbeat = 0
         self.last_publish_time = 0
         self.mqtt_topic = TOPIC_MOVEMENT
-        self.snapshot_sent = False  # Track if we've sent the face snapshot
+        self.locked_face_sent = False
+        self.last_status = None
+
+        logs_dir = Path(__file__).parent.parent / "data/logs"
+        logs_dir.mkdir(parents=True, exist_ok=True)
+        safe_target = "".join(c for c in target_name if c.isalnum() or c in ("-", "_")) or "target"
+        ts = time.strftime("%Y%m%d_%H%M%S")
+        self.evidence_log_path = logs_dir / f"{safe_target}_evidence_{ts}.csv"
+        self.evidence_log = self.evidence_log_path.open("a", newline="", encoding="utf-8")
+        self.evidence_writer = csv.DictWriter(
+            self.evidence_log,
+            fieldnames=[
+                "iso_time",
+                "timestamp",
+                "speaker_id",
+                "confidence",
+                "locked",
+                "motor_command",
+                "face_center_x_norm",
+                "mqtt_topic",
+            ],
+        )
+        self.evidence_writer.writeheader()
+        self.evidence_log.flush()
+        print(f"Evidence log: {self.evidence_log_path}")
 
     def on_connect(self, client, userdata, flags, rc):
         print(f"Connected to MQTT Broker with result code {rc}")
@@ -83,6 +109,21 @@ class VisionNode:
         self.client.publish(self.mqtt_topic, json.dumps(payload))
         print(f"Published: {status} (image: {'yes' if face_image is not None else 'no'})")
 
+    def log_evidence(self, status, confidence, locked, face_center_x_norm=None):
+        self.evidence_writer.writerow(
+            {
+                "iso_time": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "timestamp": f"{time.time():.3f}",
+                "speaker_id": self.system.target_name,
+                "confidence": f"{confidence:.4f}",
+                "locked": locked,
+                "motor_command": status,
+                "face_center_x_norm": "" if face_center_x_norm is None else f"{face_center_x_norm:.4f}",
+                "mqtt_topic": self.mqtt_topic,
+            }
+        )
+        self.evidence_log.flush()
+
     def publish_heartbeat(self):
         payload = {
             "node": "pc_vision",
@@ -92,9 +133,9 @@ class VisionNode:
         self.client.publish(TOPIC_HEARTBEAT, json.dumps(payload))
 
     def run(self):
-        cap = cv2.VideoCapture(0) # Use default camera
+        cap = cv2.VideoCapture(CAMERA_INDEX) # Use external camera
         if not cap.isOpened():
-             cap = cv2.VideoCapture(0)
+             raise RuntimeError(f"Failed to open camera index {CAMERA_INDEX}. Try camera index 0 or 2 if needed.")
         
         print(f"Vision Node Started. Tracking target: {self.system.target_name}")
         print(f"Publishing to {TOPIC_MOVEMENT}")
@@ -113,13 +154,17 @@ class VisionNode:
             
             status = "NO_FACE"
             face_crop = None
+            confidence = 0.0
+            cx_norm = None
             
             if target_face:
                 # Target is found and locked
                 f = target_face
+                confidence = float(self.system.last_target_similarity)
                 
-                # Extract face crop for dashboard (only if not sent yet)
-                if not self.snapshot_sent:
+                # Send the locked target face once per lock session.
+                # The dashboard keeps that image until the target is lost.
+                if not self.locked_face_sent:
                     x1, y1, x2, y2 = int(f.x1), int(f.y1), int(f.x2), int(f.y2)
                     # Add padding
                     pad = 20
@@ -128,13 +173,13 @@ class VisionNode:
                     x2 = min(W, x2 + pad)
                     y2 = min(H, y2 + pad)
                     face_crop = frame[y1:y2, x1:x2]
-                    self.snapshot_sent = True  # Mark as sent
-                    print("📸 Face snapshot captured and will be sent")
+                    self.locked_face_sent = True
+                    print("Locked target face captured and will be shown")
                 
                 # Calculate Center
                 cx = (f.x1 + f.x2) / 2.0
                 cx_norm = cx / W
-                
+
                 # Movement Logic
                 # Deadband: 0.4 to 0.6 is CENTERED
                 if cx_norm < 0.4:
@@ -144,16 +189,17 @@ class VisionNode:
                 else:
                     status = "CENTERED"
             else:
-                # No face detected - reset snapshot flag
-                if self.snapshot_sent:
-                    self.snapshot_sent = False
-                    print("🔓 Target lost - snapshot flag reset")
+                # No locked face detected; dashboard will clear the tracked face.
+                if self.locked_face_sent:
+                    self.locked_face_sent = False
+                    print("Target lost - tracked face cleared")
             
             # --- RATE LIMITING (10Hz) ---
             current_time = time.time()
             if current_time - self.last_publish_time >= 0.1:
                 is_locked = (status != "NO_FACE")
-                self.publish_movement(status, target=self.system.target_name, locked=is_locked, face_image=face_crop)
+                self.publish_movement(status, confidence=confidence, target=self.system.target_name, locked=is_locked, face_image=face_crop)
+                self.log_evidence(status, confidence, is_locked, cx_norm)
                 self.last_publish_time = current_time
             
             # Heartbeat every 5s
@@ -168,11 +214,12 @@ class VisionNode:
         cap.release()
         cv2.destroyAllWindows()
         self.client.loop_stop()
+        self.evidence_log.close()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--broker", type=str, default=DEFAULT_BROKER, help="MQTT Broker Address")
-    parser.add_argument("--name", type=str, default="andrew", help="Target name to lock onto")
+    parser.add_argument("--name", type=str, default="joyeuse", help="Target name to lock onto")
     args = parser.parse_args()
 
     node = VisionNode(args.broker, PORT, args.name)

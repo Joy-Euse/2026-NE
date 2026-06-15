@@ -4,228 +4,287 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S.A.R.A. System Dashboard</title>
-    <!-- Use Google Fonts for premium look -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap"
-        rel="stylesheet">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Benax Technologies Ltd Tracking System</title>
     <style>
         :root {
-            --primary-bg: #0a0a12;
-            --panel-bg: #13131f;
-            --accent-color: #00d4ff;
-            /* Neon Blue */
-            --alert-color: #ff0055;
-            /* Neon Red */
-            --success-color: #00ff9d;
-            /* Neon Green */
-            --text-color: #e0e0e0;
+            --bg: #f5f7f9;
+            --surface: #ffffff;
+            --line: #d9e1e8;
+            --text: #1d2935;
+            --muted: #6b7785;
+            --accent: #1266f1;
+            --ok: #15803d;
+            --warn: #b45309;
+            --danger: #b91c1c;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
-            background-color: var(--primary-bg);
-            color: var(--text-color);
-            font-family: 'Roboto', sans-serif;
             margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
             min-height: 100vh;
-            overflow: hidden;
-        }
-
-        /* Ambient Background */
-        body::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radical-gradient(circle at 50% 50%, rgba(0, 212, 255, 0.05), transparent 70%);
-            z-index: -1;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
         }
 
         header {
-            width: 100%;
-            padding: 20px;
-            text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(19, 19, 31, 0.8);
-            backdrop-filter: blur(10px);
-            position: fixed;
-            top: 0;
+            padding: 28px 32px 18px;
+            border-bottom: 1px solid var(--line);
+            background: var(--surface);
         }
 
         h1 {
-            font-family: 'Orbitron', sans-serif;
             margin: 0;
-            color: var(--accent-color);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 0;
         }
 
-        .container {
+        .subtitle {
+            margin-top: 6px;
+            color: var(--muted);
+            font-size: 14px;
+            text-transform: lowercase;
+        }
+
+        main {
+            width: min(1180px, calc(100% - 32px));
+            margin: 24px auto;
+        }
+
+        .workspace {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            width: 90%;
-            max-width: 1200px;
-            margin-top: 100px;
+            grid-template-columns: minmax(0, 2fr) minmax(280px, 0.9fr);
+            gap: 18px;
+            align-items: stretch;
         }
 
-        .card {
-            background: var(--panel-bg);
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            text-align: center;
-            transition: transform 0.3s ease;
+        .camera-panel,
+        .side-panel,
+        .logs-panel {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 8px;
         }
 
-        .card:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent-color);
+        .camera-panel {
+            min-height: 440px;
+            display: flex;
+            flex-direction: column;
         }
 
-        .card h2 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 20px;
+        .section-title {
+            margin: 0;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--line);
+            font-size: 14px;
+            color: var(--muted);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        #face-container {
+            flex: 1;
+            min-height: 360px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #101820;
+            overflow: hidden;
+        }
+
+        #face-image {
+            display: none;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        #no-face-msg {
+            color: #b6c2ce;
+            font-size: 16px;
+        }
+
+        .side-panel {
+            padding-bottom: 12px;
+        }
+
+        .status-list {
+            padding: 4px 16px 0;
+        }
+
+        .status-row {
+            padding: 14px 0;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .status-row:last-child {
+            border-bottom: 0;
+        }
+
+        .label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--muted);
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: 700;
         }
 
         .value {
-            font-size: 2.5rem;
+            font-size: 20px;
             font-weight: 700;
-            margin: 10px 0;
+            overflow-wrap: anywhere;
         }
 
-        #movement-status {
-            color: var(--success-color);
+        .small-value {
+            font-size: 15px;
+            color: var(--text);
         }
 
-        #timestamp {
-            font-size: 1.5rem;
-            color: #888;
-        }
-
-        #connection-status {
-            font-size: 1.2rem;
-            color: #888;
-        }
-
-        /* Status Indicators */
         .status-badge {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            min-height: 28px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--line);
+            font-size: 13px;
+            font-weight: 700;
             text-transform: uppercase;
         }
 
         .connected {
-            background: rgba(0, 255, 157, 0.1);
-            color: var(--success-color);
-            border: 1px solid var(--success-color);
+            color: var(--ok);
+            border-color: rgba(21, 128, 61, 0.35);
+            background: rgba(21, 128, 61, 0.08);
         }
 
         .disconnected {
-            background: rgba(255, 0, 85, 0.1);
-            color: var(--alert-color);
-            border: 1px solid var(--alert-color);
+            color: var(--danger);
+            border-color: rgba(185, 28, 28, 0.35);
+            background: rgba(185, 28, 28, 0.08);
         }
 
-        /* Animation for movement */
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.7);
-            }
-
-            70% {
-                transform: scale(1.05);
-                box-shadow: 0 0 0 10px rgba(0, 212, 255, 0);
-            }
-
-            100% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(0, 212, 255, 0);
-            }
+        .locked {
+            color: var(--ok);
         }
 
-        .active-update {
-            animation: pulse 0.5s ease-out;
+        .searching {
+            color: var(--warn);
+        }
+
+        .logs-panel {
+            margin-top: 18px;
         }
 
         #log-panel {
-            grid-column: 1 / -1;
-            text-align: left;
-            max-height: 200px;
+            min-height: 150px;
+            max-height: 220px;
             overflow-y: auto;
-            font-family: monospace;
-            font-size: 0.9rem;
-            color: #aaa;
+            padding: 10px 16px 14px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+            color: #435161;
         }
 
         .log-entry {
-            margin: 2px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 5px 0;
+            border-bottom: 1px solid #edf1f4;
+        }
+
+        @media (max-width: 820px) {
+            header {
+                padding: 22px 18px 16px;
+            }
+
+            h1 {
+                font-size: 23px;
+            }
+
+            main {
+                width: min(100% - 20px, 1180px);
+                margin-top: 14px;
+            }
+
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+
+            .camera-panel {
+                min-height: 320px;
+            }
+
+            #face-container {
+                min-height: 260px;
+            }
         }
     </style>
 </head>
 
 <body>
-
     <header>
-        <h1>S.A.R.A. Vision Control</h1>
-        <div style="margin-top: 5px; font-size: 0.8rem; color: #666;">Distributed Actuation System • Team 313</div>
+        <h1>Benax Technologies Ltd Tracking System</h1>
+        <div class="subtitle">iradukunda joeuse national examination</div>
     </header>
 
-    <div class="container">
-        <!-- Face Picture Card -->
-        <div class="card">
-            <h2>Face Picture</h2>
-            <div id="face-container"
-                style="display: flex; justify-content: center; align-items: center; min-height: 200px;">
-                <img id="face-image" src="" alt="No face detected"
-                    style="max-width: 100%; max-height: 300px; border-radius: 8px; display: none; border: 2px solid var(--accent-color);" />
-                <div id="no-face-msg" style="color: #666; font-size: 1rem;">Waiting for face...</div>
+    <main>
+        <div class="workspace">
+            <section class="camera-panel">
+                <h2 class="section-title">Locked Target Face</h2>
+                <div id="face-container">
+                    <img id="face-image" src="" alt="Locked target face preview">
+                    <div id="no-face-msg">Waiting for locked target face...</div>
+                </div>
+            </section>
+
+            <aside class="side-panel">
+                <h2 class="section-title">Tracking Details</h2>
+                <div class="status-list">
+                    <div class="status-row">
+                        <span class="label">Tracking Status</span>
+                        <span id="movement-status" class="value">WAITING</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="label">Target</span>
+                        <span id="target-info" class="small-value">--</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="label">Lock State</span>
+                        <span id="lock-status" class="status-badge searching">SEARCHING</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="label">Confidence</span>
+                        <span id="confidence" class="small-value">--</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="label">System Connection</span>
+                        <span id="connection-status" class="status-badge disconnected">Disconnected</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="label">Last Update</span>
+                        <span id="timestamp" class="small-value">--:--:--</span>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <section class="logs-panel">
+            <h2 class="section-title">Event Logs</h2>
+            <div id="log-panel">
+                <div id="logs"></div>
             </div>
-        </div>
-
-        <!-- Movement Status Card -->
-        <div class="card">
-            <h2>Tracking Status</h2>
-            <div id="movement-status" class="value">WAITING...</div>
-            <div id="target-info" style="font-size: 1.2rem; color: #aaa; margin-top: 10px;">Target: --</div>
-            <div id="lock-status" class="status-badge" style="background: #333; color: #888; margin-top: 5px;">SEARCHING
-            </div>
-            <div id="confidence" style="font-size: 0.9rem; color: #666; margin-top: 5px;">Confidence: --</div>
-        </div>
-
-        <!-- System State Card -->
-        <div class="card">
-            <h2>System Connection</h2>
-            <div id="connection-status" class="status-badge disconnected">Disconnected</div>
-            <div id="timestamp" class="value" style="margin-top: 20px;">--:--:--</div>
-        </div>
-
-        <!-- Log Panel -->
-        <div class="card" id="log-panel">
-            <h2>Event Log</h2>
-            <div id="logs"></div>
-        </div>
-    </div>
+        </section>
+    </main>
 
     <script>
-        // Connect to Backend running on PC
-        const wsUrl = `ws://10.12.73.80:9002`;
+        const wsUrl = `ws://${window.location.hostname || 'localhost'}:9002`;
         let ws;
 
         const statusEl = document.getElementById('movement-status');
@@ -233,19 +292,21 @@
         const timeEl = document.getElementById('timestamp');
         const confEl = document.getElementById('confidence');
         const logsEl = document.getElementById('logs');
+        const targetEl = document.getElementById('target-info');
+        const lockEl = document.getElementById('lock-status');
+        const faceImageEl = document.getElementById('face-image');
+        const noFaceMsgEl = document.getElementById('no-face-msg');
 
         function connect() {
             ws = new WebSocket(wsUrl);
 
             ws.onopen = () => {
-                console.log('Connected to Backend');
                 connEl.textContent = 'CONNECTED';
                 connEl.className = 'status-badge connected';
                 addLog('System connected to backend.');
             };
 
             ws.onclose = () => {
-                console.log('Disconnected');
                 connEl.textContent = 'DISCONNECTED';
                 connEl.className = 'status-badge disconnected';
                 addLog('Connection lost. Reconnecting...');
@@ -255,15 +316,10 @@
             ws.onmessage = (event) => {
                 try {
                     const data = JSON.parse(event.data);
-
-                    // Handle STATUS messages
                     if (data.type === 'STATUS') {
                         addLog(data.message);
                         return;
                     }
-
-                    // Handle MQTT Movement messages
-                    // Expected: { "status": "MOVE_LEFT", "confidence": 0.9, "timestamp": ... }
                     if (data.status) {
                         updateDashboard(data);
                     }
@@ -273,62 +329,43 @@
             };
         }
 
-        const targetEl = document.getElementById('target-info');
-        const lockEl = document.getElementById('lock-status');
-        const faceImageEl = document.getElementById('face-image');
-        const noFaceMsgEl = document.getElementById('no-face-msg');
-
         function updateDashboard(data) {
             statusEl.textContent = data.status;
 
-            // Update Target Info
-            if (data.target) targetEl.textContent = `Target: ${data.target}`;
+            if (data.target) {
+                targetEl.textContent = data.target;
+            }
 
-            // Update Face Image - only update if new image received
             if (data.face_image) {
                 faceImageEl.src = 'data:image/jpeg;base64,' + data.face_image;
                 faceImageEl.style.display = 'block';
                 noFaceMsgEl.style.display = 'none';
-            }
-            // Only clear image when target is lost (not locked)
-            else if (!data.locked) {
+            } else if (!data.locked) {
                 faceImageEl.style.display = 'none';
                 noFaceMsgEl.style.display = 'block';
             }
-            // If locked but no new image, keep showing existing image
 
-            // Update Lock Status
             if (data.locked) {
-                lockEl.textContent = "LOCKED";
-                lockEl.style.background = "rgba(0, 255, 157, 0.2)";
-                lockEl.style.color = "#00ff9d";
-                lockEl.style.border = "1px solid #00ff9d";
+                lockEl.textContent = 'LOCKED';
+                lockEl.className = 'status-badge connected';
             } else {
-                lockEl.textContent = "SEARCHING";
-                lockEl.style.background = "rgba(255, 165, 0, 0.2)";
-                lockEl.style.color = "orange";
-                lockEl.style.border = "1px solid orange";
+                lockEl.textContent = 'SEARCHING';
+                lockEl.className = 'status-badge searching';
             }
 
-            // Visual feedback based on status
-            if (data.status === 'MOVE_LEFT') {
-                statusEl.style.color = '#ff0055'; // Red
-            } else if (data.status === 'MOVE_RIGHT') {
-                statusEl.style.color = '#00d4ff'; // Blue
+            if (data.status === 'MOVE_LEFT' || data.status === 'MOVE_RIGHT') {
+                statusEl.style.color = 'var(--accent)';
             } else if (data.status === 'CENTERED') {
-                statusEl.style.color = '#00ff9d'; // Green
+                statusEl.style.color = 'var(--ok)';
             } else {
-                statusEl.style.color = '#888';
+                statusEl.style.color = 'var(--muted)';
             }
 
-            statusEl.parentElement.classList.remove('active-update');
-            void statusEl.parentElement.offsetWidth; // Trigger reflow
-            statusEl.parentElement.classList.add('active-update');
+            if (data.confidence !== undefined) {
+                confEl.textContent = `${(data.confidence * 100).toFixed(1)}%`;
+            }
 
-            if (data.confidence) confEl.textContent = `Confidence: ${(data.confidence * 100).toFixed(1)}%`;
-
-            const date = new Date();
-            timeEl.textContent = date.toLocaleTimeString();
+            timeEl.textContent = new Date().toLocaleTimeString();
         }
 
         function addLog(msg) {
@@ -338,7 +375,6 @@
             logsEl.insertBefore(entry, logsEl.firstChild);
         }
 
-        // Init
         connect();
     </script>
 </body>

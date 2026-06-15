@@ -1,0 +1,66 @@
+12:06:52 | LOCK_ACQUIRED | sim=0.62
+12:06:52 | MOVE_RIGHT | nose_x=0.75
+12:06:53 | MOVE_RIGHT | nose_x=0.61
+12:06:54 | MOVE_LEFT | nose_x=0.50
+12:06:56 | MOVE_RIGHT | nose_x=0.62
+12:06:57 | MOVE_RIGHT | nose_x=0.62
+12:06:58 | MOVE_RIGHT | nose_x=0.68
+12:06:59 | LOCK_LOST | Target disappeared
+12:07:12 | LOCK_ACQUIRED | sim=0.63
+12:07:12 | MOVE_RIGHT | nose_x=0.95
+12:07:13 | BLINK | EAR=0.13
+12:07:14 | MOVE_RIGHT | nose_x=0.65
+12:07:15 | MOVE_RIGHT | nose_x=0.69
+12:07:16 | LOCK_LOST | Target disappeared
+12:07:19 | LOCK_ACQUIRED | sim=0.75
+12:07:19 | MOVE_RIGHT | nose_x=0.94
+12:07:20 | MOVE_RIGHT | nose_x=0.62
+12:07:21 | BLINK | EAR=0.19
+12:07:21 | MOVE_RIGHT | nose_x=0.69
+12:07:22 | LOCK_LOST | Target disappeared
+12:07:41 | LOCK_ACQUIRED | sim=0.40
+12:07:41 | MOVE_RIGHT | nose_x=0.67
+12:07:41 | LOCK_LOST | Target disappeared
+12:07:42 | LOCK_ACQUIRED | sim=0.45
+12:07:42 | BLINK | EAR=0.21
+12:07:44 | LOCK_LOST | Target disappeared
+12:07:47 | LOCK_ACQUIRED | sim=0.54
+12:07:48 | MOVE_LEFT | nose_x=0.50
+12:07:49 | BLINK | EAR=0.21
+12:07:49 | MOVE_LEFT | nose_x=0.49
+12:07:50 | LOCK_LOST | Target disappeared
+12:07:55 | LOCK_ACQUIRED | sim=0.44
+12:07:55 | BLINK | EAR=0.18
+12:07:55 | MOVE_LEFT | nose_x=0.50
+12:07:55 | BLINK | EAR=0.21
+12:07:55 | MOVE_LEFT | nose_x=0.49
+12:07:56 | BLINK | EAR=0.21
+12:07:56 | MOVE_LEFT | nose_x=0.48
+12:07:56 | BLINK | EAR=0.19
+12:07:57 | MOVE_LEFT | nose_x=0.50
+12:07:57 | BLINK | EAR=0.21
+12:07:57 | MOVE_LEFT | nose_x=0.50
+12:07:59 | LOCK_LOST | Target disappeared
+12:08:04 | LOCK_ACQUIRED | sim=0.41
+12:08:06 | LOCK_LOST | Target disappeared
+12:08:14 | LOCK_ACQUIRED | sim=0.44
+12:08:15 | BLINK | EAR=0.22
+12:08:17 | LOCK_LOST | Target disappeared
+12:08:22 | LOCK_ACQUIRED | sim=0.44
+12:08:22 | MOVE_LEFT | nose_x=0.50
+12:08:23 | BLINK | EAR=0.17
+12:08:23 | MOVE_LEFT | nose_x=0.47
+12:08:24 | MOVE_LEFT | nose_x=0.35
+12:08:24 | BLINK | EAR=0.18
+12:08:24 | MOVE_LEFT | nose_x=0.38
+12:08:25 | BLINK | EAR=0.20
+12:08:25 | MOVE_LEFT | nose_x=0.47
+12:08:26 | MOVE_LEFT | nose_x=0.49
+12:08:27 | MOVE_LEFT | nose_x=0.44
+12:08:28 | MOVE_LEFT | nose_x=0.42
+12:08:29 | MOVE_LEFT | nose_x=0.40
+12:08:30 | MOVE_LEFT | nose_x=0.42
+12:08:30 | BLINK | EAR=0.18
+12:08:30 | MOVE_LEFT | nose_x=0.42
+12:08:31 | MOVE_RIGHT | nose_x=0.61
+12:08:32 | LOCK_LOST | Target disappeared
