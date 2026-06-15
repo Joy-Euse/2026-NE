@@ -4,8 +4,8 @@
   "description": "Authentication service for the Fire Extinguisher Management System",
   "main": "src/app.js",
   "scripts": {
-    "dev": "nodemon src/app.js",
-    "start": "node src/app.js",
+    "dev": "node api.js && nodemon src/app.js",
+    "start": "node api.js && node src/app.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "seed": "node prisma/seed.js"
